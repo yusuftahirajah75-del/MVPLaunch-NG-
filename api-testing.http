@@ -1,0 +1,252 @@
+### MVPLaunch NG - Complete API Workflow Test Suite (REST Client / HTTP)
+@baseUrl = http://localhost:5000/api/v1
+@contentType = application/json
+
+### 1. Health Check
+GET {{baseUrl}}/health
+Content-Type: {{contentType}}
+
+### 2. Register New Client Account
+# @name registerClient
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "email": "chioma@quickretail.ng",
+  "password": "Password123!",
+  "fullName": "Chioma Adeleke",
+  "phoneNumber": "+2348145556677",
+  "role": "CLIENT"
+}
+
+### 3. Login as Client
+# @name loginClient
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "chioma@quickretail.ng",
+  "password": "Password123!"
+}
+
+### Save client token
+@clientToken = {{loginClient.response.body.data.token}}
+
+### 4. Login as Admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "email": "admin@mvplaunch.ng",
+  "password": "AdminPass123!"
+}
+
+### Save admin token
+@adminToken = {{loginAdmin.response.body.data.token}}
+
+### 5. Get Authenticated User Profile (Me)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{clientToken}}
+
+### 6. Client Submits MVP Idea
+# @name submitIdea
+POST {{baseUrl}}/ideas
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "title": "QuickRetail NG",
+  "rawSummary": "A micro-inventory and WhatsApp commerce storefront engine for Alaba and Computer Village traders in Lagos.",
+  "targetIndustry": "Retail & E-commerce",
+  "budgetBracket": "₦500,000 - ₦1,000,000",
+  "targetTimeline": "3-4 Weeks"
+}
+
+### Save Idea ID
+@ideaId = {{submitIdea.response.body.data.idea.id}}
+
+### 7. Clarify Problem & Value Proposition
+POST {{baseUrl}}/scope/problem
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "ideaId": "{{ideaId}}",
+  "coreProblem": "Traders lose up to 40% of sales because their WhatsApp status catalog requires manual back-and-forth price checking.",
+  "alternativeSolutions": "Shopify (too complex/expensive for Naira billing), Instagram DMs (unorganized order tracking).",
+  "uniqueValueProp": "Instant 30-second mobile storefront with automated Paystack checkout and instant WhatsApp order dispatch.",
+  "whyNow": "Cashless economy push in Nigeria and widespread WhatsApp Business adoption in commercial hubs.",
+  "monetizationHypothesis": "1.5% fee per transaction capped at ₦1,000."
+}
+
+### 8. Define Target Customer
+POST {{baseUrl}}/scope/customer
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "ideaId": "{{ideaId}}",
+  "primaryPersona": "Retail traders & gadget vendors selling on WhatsApp & Instagram",
+  "painPoints": "Managing stock manually, confirming bank transfer alerts manually, dealing with unconfirmed payment receipts.",
+  "distributionChannel": "WhatsApp direct outreach, trade associations at Computer Village Ikeja.",
+  "userArchetype": "Tech-savvy Nigerian merchant aged 22-38 with high WhatsApp usage.",
+  "locationContext": "Lagos (Ikeja, Trade Fair, Alaba)"
+}
+
+### 9. Define MVP Scope & Core Features
+POST {{baseUrl}}/scope/mvp
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "ideaId": "{{ideaId}}",
+  "mustHaveFeatures": [
+    "Mobile-first customer product catalog",
+    "Paystack direct checkout integration (Cards, USSD, Bank Transfer)",
+    "Merchant admin inventory update page",
+    "Automated WhatsApp order confirmation message link"
+  ],
+  "outOfScopeFeatures": [
+    "Multi-currency foreign cards",
+    "Native iOS/Android App (PWA only for MVP)",
+    "Automated delivery dispatch riders integration"
+  ],
+  "techStackPreferences": ["React", "Express.js", "PostgreSQL", "Paystack API"],
+  "targetLaunchDate": "2026-10-31",
+  "complexityRating": "MEDIUM",
+  "estimatedWeeks": 3
+}
+
+### 10. Retrieve Full Bundled Idea Scope
+GET {{baseUrl}}/scope/idea/{{ideaId}}
+Authorization: Bearer {{clientToken}}
+
+### 11. Create Project from Idea
+# @name createProject
+POST {{baseUrl}}/projects
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "ideaId": "{{ideaId}}",
+  "title": "QuickRetail NG - WhatsApp Commerce MVP",
+  "description": "Production web MVP for Nigerian merchants with Paystack integration and WhatsApp order processing."
+}
+
+### Save Project ID
+@projectId = {{createProject.response.body.data.project.id}}
+
+### 12. Create Proposal (Developer/Admin)
+# @name createProposal
+POST {{baseUrl}}/proposals
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "projectId": "{{projectId}}",
+  "title": "Complete 3-Week QuickRetail NG Web MVP Architecture & Launch",
+  "priceNgn": 750000,
+  "durationDays": 21,
+  "deliverables": [
+    "PostgreSQL Normalized Schema & Express API Backend",
+    "Mobile-first responsive React customer store & Merchant Admin",
+    "Paystack automated checkout & webhook verification",
+    "Staging & Production deployment on Render + custom domain setup",
+    "Complete GitHub repository handover & 14 days post-launch support"
+  ],
+  "terms": "30% upfront deposit upon contract signing, 40% on milestone 2 delivery, 30% on final handover.",
+  "validUntilDays": 14
+}
+
+### Save Proposal ID
+@proposalId = {{createProposal.response.body.data.proposal.id}}
+
+### 13. Client Accepts Proposal (Auto-Generates Order and 3 Milestones)
+POST {{baseUrl}}/proposals/{{proposalId}}/respond
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "action": "ACCEPT"
+}
+
+### 14. View Milestones for Project
+# @name getMilestones
+GET {{baseUrl}}/milestones/project/{{projectId}}
+Authorization: Bearer {{clientToken}}
+
+### 15. Client Initializes Paystack Payment for Phase 1 Deposit (₦225,000)
+# @name initPayment
+POST {{baseUrl}}/payments/initialize
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "orderId": "{{proposalId}}",
+  "amountNgn": 225000
+}
+
+### 16. Verify Paystack Payment
+POST {{baseUrl}}/payments/verify
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "reference": "{{initPayment.response.body.data.reference}}"
+}
+
+### 17. Developer Records Staging Deployment
+POST {{baseUrl}}/deployments
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "projectId": "{{projectId}}",
+  "environment": "STAGING",
+  "deploymentUrl": "https://staging-quickretail.mvplaunch.ng",
+  "commitHash": "9f81a7b",
+  "status": "LIVE",
+  "notes": "Milestone 1 architecture live and operational on Render."
+}
+
+### 18. Developer Initiates GitHub Handover
+POST {{baseUrl}}/handover
+Authorization: Bearer {{adminToken}}
+Content-Type: {{contentType}}
+
+{
+  "projectId": "{{projectId}}",
+  "githubRepo": "https://github.com/mvplaunch-ng/quickretail-mvp",
+  "documentationUrl": "https://docs.mvplaunch.ng/projects/quickretail",
+  "notes": "Full source code, environment variables template, and deployment guide."
+}
+
+### 19. Client Submits Signoff on Handover (Completes Project)
+POST {{baseUrl}}/handover/project/{{projectId}}/signoff
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "roleType": "CLIENT"
+}
+
+### 20. Client Submits 5-Star Testimonial Review
+POST {{baseUrl}}/reviews
+Authorization: Bearer {{clientToken}}
+Content-Type: {{contentType}}
+
+{
+  "projectId": "{{projectId}}",
+  "rating": 5,
+  "title": "MVPLaunch NG made my startup real in 3 weeks!",
+  "feedbackText": "I had pitched this idea for 8 months with slides. In less than 3 weeks with MVPLaunch NG, we had a real working system taking real customer orders in Lagos."
+}
+
+### 21. Admin Dashboard KPIs & Platform Analytics
+GET {{baseUrl}}/admin/metrics
+Authorization: Bearer {{adminToken}}
+
+### 22. Admin Audit Logs
+GET {{baseUrl}}/audit-logs
+Authorization: Bearer {{adminToken}}

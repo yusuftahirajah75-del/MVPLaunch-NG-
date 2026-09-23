@@ -1,0 +1,432 @@
+openapi: 3.0.3
+info:
+  title: MVPLaunch NG Backend REST API
+  description: |
+    Production-grade backend for **MVPLaunch NG**, a Nigerian MVP Launch Service that helps students, aspiring founders, and small businesses turn validated ideas into working, deployable web MVPs.
+    
+    Positioning: *"MVPLaunch NG helps you turn a validated idea into something real that you can show people."*
+  version: 1.0.0
+  contact:
+    name: MVPLaunch NG Engineering Team
+    email: dev@mvplaunch.ng
+servers:
+  - url: http://localhost:5000/api/v1
+    description: Local Development Server
+  - url: https://api.mvplaunch.ng/api/v1
+    description: Production Server (Render)
+
+paths:
+  /health:
+    get:
+      summary: API health and uptime check
+      responses:
+        '200':
+          description: API is healthy and operational
+
+  /auth/register:
+    post:
+      summary: Register a new Client or Developer account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, fullName]
+              properties:
+                email:
+                  type: string
+                  example: founder@quickretail.ng
+                password:
+                  type: string
+                  example: SecretPass123!
+                fullName:
+                  type: string
+                  example: Chioma Adeleke
+                phoneNumber:
+                  type: string
+                  example: "+2348145556677"
+                role:
+                  type: string
+                  enum: [CLIENT, DEVELOPER]
+                  default: CLIENT
+      responses:
+        '201':
+          description: User registered successfully, JWT cookie issued
+
+  /auth/login:
+    post:
+      summary: Authenticate user & issue secure HTTP-only cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  example: admin@mvplaunch.ng
+                password:
+                  type: string
+                  example: AdminPass123!
+      responses:
+        '200':
+          description: Logged in successfully
+
+  /auth/logout:
+    post:
+      summary: Clear session & auth cookie
+      responses:
+        '200':
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      summary: Retrieve current authenticated user profile
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Profile retrieved
+
+  /ideas:
+    get:
+      summary: List all ideas (Admin & Developer)
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: List of ideas
+    post:
+      summary: Submit a new idea (Client)
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, rawSummary]
+              properties:
+                title:
+                  type: string
+                  example: QuickRetail NG
+                rawSummary:
+                  type: string
+                  example: Micro-inventory and WhatsApp commerce storefront for Alaba merchants.
+                targetIndustry:
+                  type: string
+                  example: Retail & E-commerce
+                budgetBracket:
+                  type: string
+                  example: ₦500,000 - ₦1,000,000
+                targetTimeline:
+                  type: string
+                  example: 3-4 Weeks
+      responses:
+        '201':
+          description: Idea submitted
+
+  /ideas/my:
+    get:
+      summary: List client's submitted ideas
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Client ideas retrieved
+
+  /scope/problem:
+    post:
+      summary: Clarify problem, alternative solutions and value proposition
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ideaId, coreProblem, uniqueValueProp]
+              properties:
+                ideaId:
+                  type: string
+                  format: uuid
+                coreProblem:
+                  type: string
+                alternativeSolutions:
+                  type: string
+                uniqueValueProp:
+                  type: string
+                whyNow:
+                  type: string
+                monetizationHypothesis:
+                  type: string
+      responses:
+        '200':
+          description: Problem clarified
+
+  /scope/customer:
+    post:
+      summary: Define target customer persona, pain points, and distribution
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ideaId, primaryPersona, painPoints]
+              properties:
+                ideaId:
+                  type: string
+                  format: uuid
+                primaryPersona:
+                  type: string
+                painPoints:
+                  type: string
+                distributionChannel:
+                  type: string
+                userArchetype:
+                  type: string
+                locationContext:
+                  type: string
+      responses:
+        '200':
+          description: Customer defined
+
+  /scope/mvp:
+    post:
+      summary: Define MVP features, scope exclusions, and tech preferences
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ideaId, mustHaveFeatures]
+              properties:
+                ideaId:
+                  type: string
+                  format: uuid
+                mustHaveFeatures:
+                  type: array
+                  items:
+                    type: string
+                outOfScopeFeatures:
+                  type: array
+                  items:
+                    type: string
+                techStackPreferences:
+                  type: array
+                  items:
+                    type: string
+                complexityRating:
+                  type: string
+                  enum: [LOW, MEDIUM, HIGH]
+                estimatedWeeks:
+                  type: integer
+      responses:
+        '200':
+          description: Scope defined
+
+  /projects:
+    get:
+      summary: List user projects
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: List of projects
+    post:
+      summary: Create project from idea
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '201':
+          description: Project created
+
+  /proposals:
+    post:
+      summary: Create project proposal with pricing in NGN
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '201':
+          description: Proposal created
+
+  /proposals/{id}/respond:
+    post:
+      summary: Client accepts or declines project proposal
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Proposal accepted or declined
+
+  /milestones:
+    post:
+      summary: Create project milestone
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '201':
+          description: Milestone created
+
+  /milestones/{id}/submit:
+    post:
+      summary: Submit milestone for client review
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Milestone submitted
+
+  /milestones/{id}/approve:
+    post:
+      summary: Client approves milestone
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Milestone approved
+
+  /payments/initialize:
+    post:
+      summary: Initialize Paystack checkout for order or milestone
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [orderId, amountNgn]
+              properties:
+                orderId:
+                  type: string
+                  format: uuid
+                milestoneId:
+                  type: string
+                  format: uuid
+                amountNgn:
+                  type: number
+                  example: 250000
+      responses:
+        '201':
+          description: Paystack checkout URL generated
+
+  /payments/verify:
+    post:
+      summary: Verify Paystack transaction reference
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reference]
+              properties:
+                reference:
+                  type: string
+      responses:
+        '200':
+          description: Payment verified
+
+  /payments/webhook:
+    post:
+      summary: Paystack Webhook endpoint (HMAC SHA512 signature verified)
+      responses:
+        '200':
+          description: Webhook received
+
+  /deployments:
+    post:
+      summary: Record staging/production deployment URL
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '201':
+          description: Deployment logged
+
+  /handover:
+    post:
+      summary: Initiate GitHub repository handover
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '201':
+          description: Handover initiated
+
+  /reviews:
+    get:
+      summary: Get published client reviews / testimonials
+      responses:
+        '200':
+          description: Testimonials list
+    post:
+      summary: Client submits project review & rating (1-5)
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '201':
+          description: Review submitted
+
+  /admin/metrics:
+    get:
+      summary: Get platform aggregated metrics & KPIs (Admin only)
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: Platform KPIs and metrics
+
+  /admin/health:
+    get:
+      summary: Check system & database health (Admin only)
+      security:
+        - BearerAuth: []
+        - CookieAuth: []
+      responses:
+        '200':
+          description: System health status
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: mvplaunch_token
