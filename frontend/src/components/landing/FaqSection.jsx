@@ -60,7 +60,7 @@ export default function FaqSection() {
   };
 
   return (
-    <section id="faq" style={{ padding: '6rem 0', background: 'var(--bg-base)', position: 'relative' }}>
+    <section id="faq" style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-base)', position: 'relative' }}>
       <div className="container container-narrow">
         <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
           <span className="badge badge-indigo" style={{ marginBottom: '0.75rem' }}>Got Questions?</span>
@@ -80,7 +80,7 @@ export default function FaqSection() {
                 key={idx}
                 className="card"
                 style={{
-                  padding: '1.25rem 1.5rem',
+                  padding: 'clamp(1rem, 3vw, 1.25rem) clamp(1rem, 3.5vw, 1.5rem)',
                   background: isOpen ? 'var(--bg-card-hover)' : 'var(--bg-card)',
                   borderColor: isOpen ? 'var(--border-card)' : 'var(--border-subtle)',
                   cursor: 'pointer'

@@ -74,7 +74,7 @@ export default function PaymentCallback({ onBackToHome, onNavigatePortal }) {
           borderRadius: 'var(--radius-xl)',
           border: '1px solid var(--border-subtle)',
           boxShadow: 'var(--shadow-xl)',
-          padding: '2.5rem 2rem',
+          padding: 'clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 3.5vw, 2rem)',
           textAlign: 'center'
         }}
       >
@@ -145,35 +145,35 @@ export default function PaymentCallback({ onBackToHome, onNavigatePortal }) {
               flexDirection: 'column',
               gap: '0.65rem'
             }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.25rem' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Package</span>
                 <strong style={{ color: '#fff', fontSize: '0.92rem' }}>
                   {paymentData?.package?.name || paymentData?.order?.package_name || 'Launch Package'}
                 </strong>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.25rem' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Amount Paid</span>
                 <strong style={{ color: 'var(--accent-emerald-light)', fontSize: '1.05rem', fontWeight: 800 }}>
                   ₦{(paymentData?.payment?.amount_ngn || 0).toLocaleString()} NGN
                 </strong>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.25rem' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Customer Email</span>
-                <span style={{ color: '#cbd5e1', fontSize: '0.84rem' }}>
+                <span style={{ color: '#cbd5e1', fontSize: '0.84rem', wordBreak: 'break-all' }}>
                   {paymentData?.order?.customer_email || paymentData?.payment?.customer_email}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '0.5rem', flexWrap: 'wrap', gap: '0.25rem' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Payment Reference</span>
-                <span style={{ color: '#38bdf8', fontSize: '0.78rem', fontFamily: 'monospace' }}>
+                <span style={{ color: '#38bdf8', fontSize: '0.78rem', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                   {reference}
                 </span>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.25rem' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.84rem' }}>Delivery Timeline</span>
                 <span style={{ color: '#e2e8f0', fontSize: '0.84rem' }}>
                   {paymentData?.package?.timeline || '3–7 Business Days'}

@@ -35,7 +35,7 @@ export default function AuthModal() {
 
   return (
     <div className="modal-overlay" onClick={() => setAuthModalOpen(false)}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '2rem' }}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: 'clamp(1.15rem, 4vw, 2rem)' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
           <div>

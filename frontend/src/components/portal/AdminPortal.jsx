@@ -69,7 +69,7 @@ export default function AdminPortal({ onBackToLanding }) {
         top: 0,
         zIndex: 50
       }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button onClick={onBackToLanding} className="btn btn-secondary btn-sm" style={{ fontSize: '0.8rem' }}>
               ← Landing
@@ -101,7 +101,7 @@ export default function AdminPortal({ onBackToLanding }) {
         borderBottom: '1px solid var(--border-subtle)',
         padding: '0.5rem 0'
       }}>
-        <div className="container" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+        <div className="container" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             onClick={() => setActiveTab('orders')}
             className={`btn btn-sm ${activeTab === 'orders' ? 'btn-primary' : 'btn-ghost'}`}
@@ -139,7 +139,7 @@ export default function AdminPortal({ onBackToLanding }) {
         </div>
       </div>
 
-      <main className="container" style={{ padding: '2.5rem 1.5rem 5rem' }}>
+      <main className="container" style={{ padding: 'clamp(1.25rem, 3vw, 2.5rem) clamp(0.75rem, 2.5vw, 1.5rem) 5rem' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: '5rem 0' }}>
             <RefreshCw size={28} className="animate-float" style={{ color: '#f59e0b' }} />
@@ -153,7 +153,7 @@ export default function AdminPortal({ onBackToLanding }) {
                 {/* Revenue & Settlement Banner */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
                   gap: '1rem',
                   marginBottom: '1.5rem'
                 }}>
@@ -241,8 +241,8 @@ export default function AdminPortal({ onBackToLanding }) {
 
                 {/* Orders List / Table */}
                 <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                  <div className="table-responsive" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                    <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
                       <thead>
                         <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-muted)' }}>
                           <th style={{ padding: '0.85rem 1rem' }}>Order / Date</th>
@@ -396,7 +396,7 @@ export default function AdminPortal({ onBackToLanding }) {
                 {/* KPI Cards Grid */}
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
                   gap: '1.25rem',
                   marginBottom: '2.5rem'
                 }}>
@@ -482,7 +482,7 @@ export default function AdminPortal({ onBackToLanding }) {
 
             {/* TAB 3: CLIENT IDEAS & AUDIT LOG */}
             {activeTab === 'ideas' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
                 {/* Column 1: Client Ideas */}
                 <div className="card">
                   <h3 style={{ fontSize: '1.15rem', color: '#fff', marginBottom: '1rem' }}>Recent Ideas</h3>

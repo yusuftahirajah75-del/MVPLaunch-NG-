@@ -66,7 +66,7 @@ export default function WorkflowSection() {
   const { setIdeaModalOpen } = useAuth();
 
   return (
-    <section id="how-it-works" style={{ padding: '6rem 0', background: 'var(--bg-surface)', position: 'relative' }}>
+    <section id="how-it-works" style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-surface)', position: 'relative' }}>
       <div className="container">
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
           <span className="badge badge-emerald" style={{ marginBottom: '0.75rem' }}>Structured Process</span>
@@ -81,7 +81,7 @@ export default function WorkflowSection() {
         {/* 7-Step Interactive Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
           gap: '1.25rem',
           marginBottom: '3rem'
         }}>

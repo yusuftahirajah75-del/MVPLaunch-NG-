@@ -137,7 +137,7 @@ export default function DeveloperPortal({ onBackToLanding }) {
         top: 0,
         zIndex: 50
       }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button onClick={onBackToLanding} className="btn btn-secondary btn-sm" style={{ fontSize: '0.8rem' }}>
               ← Landing
@@ -157,7 +157,7 @@ export default function DeveloperPortal({ onBackToLanding }) {
         </div>
       </header>
 
-      <main className="container" style={{ padding: '2rem 1.5rem 5rem' }}>
+      <main className="container" style={{ padding: 'clamp(1.25rem, 3vw, 2rem) clamp(0.75rem, 2.5vw, 1.5rem) 5rem' }}>
         {notification && (
           <div style={{
             background: 'rgba(99, 102, 241, 0.12)',
@@ -205,7 +205,7 @@ export default function DeveloperPortal({ onBackToLanding }) {
             </div>
 
             {/* Main Developer Columns */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '1.5rem' }}>
               {/* Column 1: Task Management */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

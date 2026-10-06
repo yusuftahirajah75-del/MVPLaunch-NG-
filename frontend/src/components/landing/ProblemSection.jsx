@@ -33,7 +33,7 @@ export default function ProblemSection() {
   const { setIdeaModalOpen } = useAuth();
 
   return (
-    <section style={{ padding: '6rem 0', background: 'var(--bg-surface)', position: 'relative' }}>
+    <section style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-surface)', position: 'relative' }}>
       <div className="container">
         {/* Section Header */}
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
@@ -49,7 +49,7 @@ export default function ProblemSection() {
         {/* 4 Pain Point Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
           gap: '1.5rem',
           marginBottom: '3rem'
         }}>
@@ -81,7 +81,7 @@ export default function ProblemSection() {
 
         {/* Transition Callout Banner */}
         <div className="glass-panel" style={{
-          padding: '2rem 2.5rem',
+          padding: 'clamp(1.25rem, 4vw, 2.5rem)',
           borderRadius: 'var(--radius-xl)',
           display: 'flex',
           alignItems: 'center',

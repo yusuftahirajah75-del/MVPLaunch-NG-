@@ -121,7 +121,7 @@ export default function PackagesSection() {
   const totalEstimatedCost = featureList.reduce((acc, f) => (selectedFeatures[f.key] ? acc + f.cost : acc), 100000);
 
   return (
-    <section id="services" style={{ padding: '6rem 0', background: 'var(--bg-base)', position: 'relative' }}>
+    <section id="services" style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-base)', position: 'relative' }}>
       <div className="container">
         {/* Section Header */}
         <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 3.5rem' }}>
@@ -137,7 +137,7 @@ export default function PackagesSection() {
         {/* 3 Main Package Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '1.75rem',
           marginBottom: '4rem'
         }}>
@@ -192,7 +192,9 @@ export default function PackagesSection() {
                 border: '1px solid var(--border-subtle)',
                 display: 'flex',
                 justifyContent: 'space-between',
-                alignItems: 'baseline'
+                alignItems: 'baseline',
+                flexWrap: 'wrap',
+                gap: '0.5rem'
               }}>
                 <div>
                   <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--accent-emerald-light)' }}>
@@ -282,7 +284,7 @@ export default function PackagesSection() {
         {/* Transparent Service Terms & Delivery Process Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))',
           gap: '1.25rem',
           marginBottom: '3.5rem'
         }}>
@@ -319,7 +321,7 @@ export default function PackagesSection() {
 
         {/* Interactive Scope & Custom MVP Estimator */}
         <div className="glass-panel" style={{
-          padding: '2.5rem',
+          padding: 'clamp(1.25rem, 4vw, 2.5rem)',
           borderRadius: 'var(--radius-xl)',
           border: '1px solid rgba(16, 185, 129, 0.3)'
         }}>
@@ -331,7 +333,7 @@ export default function PackagesSection() {
             If your startup requires full relational databases, automated Paystack payment escrows, multi-role user authentication, or mobile PWA features, use our custom scope estimator below:
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem', marginBottom: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '0.85rem', marginBottom: '2rem' }}>
             {featureList.map((f) => (
               <label
                 key={f.key}

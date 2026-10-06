@@ -299,15 +299,16 @@ input, textarea, select {
 }
 
 /* Modals & Overlays */
-.modal-overlay {
+.modal-overlay, .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 13, 0.82);
+  background: rgba(4, 7, 13, 0.85);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1rem;
   z-index: 1000;
   animation: fadeIn 0.2s ease-out;
 }
@@ -318,12 +319,48 @@ input, textarea, select {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 580px;
-  max-height: 90vh;
+  max-height: calc(100vh - 2rem);
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Universal Media Protection */
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+/* Visibility Toggles */
+.hide-on-mobile {
+  display: inherit;
+}
+.show-on-mobile {
+  display: none !important;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-md);
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: var(--border-card);
+  border-radius: 4px;
+}
+
+/* Mobile Scrollbar & Touch Tabs */
+.touch-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
 /* Tabs */
 .tabs-header {
   display: flex;
@@ -332,6 +369,7 @@ input, textarea, select {
   padding-bottom: 0.5rem;
   margin-bottom: 1.5rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tab-btn {
@@ -344,6 +382,7 @@ input, textarea, select {
   font-size: 0.9rem;
   font-weight: 600;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .tab-btn:hover {
@@ -383,12 +422,120 @@ input, textarea, select {
   animation: floatAnimation 4s ease-in-out infinite;
 }
 
-/* Responsive adjustments */
+/* ==========================================================
+   RESPONSIVE BREAKPOINTS (Desktop -> Laptop -> Tablet -> Mobile)
+   ========================================================== */
+
+/* 1. Large Tablets & Small Laptops (<= 1024px) */
+@media (max-width: 1024px) {
+  .container {
+    max-width: 960px;
+    padding: 0 1.25rem;
+  }
+}
+
+/* 2. Tablets & Mobile Landscape (<= 860px) */
+@media (max-width: 860px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+  .show-on-mobile {
+    display: flex !important;
+  }
+
+  /* Compact sections */
+  section {
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+
+  .btn-lg {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.98rem;
+  }
+}
+
+/* 3. Standard Mobile Phones (<= 768px) */
 @media (max-width: 768px) {
   .container, .container-narrow {
     padding: 0 1rem;
   }
+
   .card {
     padding: 1.25rem;
   }
+
+  .modal-content {
+    border-radius: var(--radius-lg);
+    padding: 1.25rem !important;
+    max-height: calc(100vh - 1.5rem);
+  }
+
+  .modal-overlay, .modal-backdrop {
+    padding: 0.75rem;
+  }
+
+  /* Prevent zoom on iOS inputs */
+  .form-input, .form-textarea, .form-select {
+    font-size: 16px;
+  }
+
+  /* Stack button groups on mobile */
+  .mobile-stack-buttons {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .mobile-stack-buttons .btn {
+    width: 100% !important;
+  }
 }
+
+/* 4. Small Mobile Phones (<= 480px, e.g. 320px–420px screens) */
+@media (max-width: 480px) {
+  .container, .container-narrow {
+    padding: 0 0.85rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  /* Header font sizing safety */
+  h1 {
+    font-size: 1.95rem !important;
+    line-height: 1.2 !important;
+  }
+  h2 {
+    font-size: 1.55rem !important;
+    line-height: 1.25 !important;
+  }
+  h3 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Buttons on extra-small screens */
+  .btn {
+    padding: 0.7rem 1.1rem;
+    font-size: 0.88rem;
+    min-height: 44px; /* Touch target guideline */
+  }
+
+  .btn-sm {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.78rem;
+    min-height: 36px;
+  }
+
+  /* Badge compact */
+  .badge {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+  }
+
+  /* Tighter modal content */
+  .modal-content {
+    padding: 1rem !important;
+    border-radius: var(--radius-md);
+  }
+}
+

@@ -13,7 +13,7 @@ export default function WorkspacePreview() {
   const [activeTab, setActiveTab] = useState('milestones');
 
   return (
-    <section style={{ padding: '6rem 0', background: 'var(--bg-surface)', position: 'relative' }}>
+    <section style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-surface)', position: 'relative' }}>
       <div className="container">
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3rem' }}>
           <span className="badge badge-indigo" style={{ marginBottom: '0.75rem' }}>Client Experience</span>
@@ -35,7 +35,7 @@ export default function WorkspacePreview() {
           {/* Workspace Window Header */}
           <div style={{
             background: 'var(--bg-card)',
-            padding: '1rem 1.5rem',
+            padding: 'clamp(0.75rem, 2.5vw, 1rem) clamp(0.85rem, 3vw, 1.5rem)',
             borderBottom: '1px solid var(--border-subtle)',
             display: 'flex',
             alignItems: 'center',
@@ -86,10 +86,10 @@ export default function WorkspacePreview() {
           </div>
 
           {/* Workspace Body */}
-          <div style={{ padding: '2rem', background: 'var(--bg-base)' }}>
+          <div style={{ padding: 'clamp(1rem, 3vw, 2rem)', background: 'var(--bg-base)' }}>
             {activeTab === 'milestones' && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                   <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
                     Total Project Scope: <strong>₦750,000</strong> (3 Milestone Escrow Slices)
                   </span>
@@ -99,7 +99,7 @@ export default function WorkspacePreview() {
                 </div>
 
                 <div style={{ background: 'var(--bg-card)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span className="badge badge-emerald">Phase 1</span>
                       <strong style={{ fontSize: '1rem', color: '#fff' }}>Database Schemas & Paystack Webhook Engine</strong>
@@ -116,7 +116,7 @@ export default function WorkspacePreview() {
                 </div>
 
                 <div style={{ background: 'var(--bg-card)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span className="badge badge-amber">Phase 2</span>
                       <strong style={{ fontSize: '1rem', color: '#fff' }}>Merchant Inventory Dashboard & Customer Cart</strong>
@@ -182,10 +182,10 @@ export default function WorkspacePreview() {
 
             {activeTab === 'deployments' && (
               <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-                  <div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div style={{ minWidth: 0, maxWidth: '100%' }}>
                     <span className="badge badge-emerald" style={{ marginBottom: '0.4rem' }}>STAGING LIVE</span>
-                    <h4 style={{ fontSize: '1.2rem', color: '#fff' }}>https://staging-quickretail.mvplaunch.ng</h4>
+                    <h4 style={{ fontSize: '1.1rem', color: '#fff', wordBreak: 'break-all' }}>https://staging-quickretail.mvplaunch.ng</h4>
                   </div>
                   <a
                     href="https://staging-quickretail.mvplaunch.ng"
@@ -209,11 +209,11 @@ export default function WorkspacePreview() {
 
             {activeTab === 'handover' && (
               <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <GithubIcon size={24} color="#fff" />
-                    <div>
-                      <h4 style={{ fontSize: '1.1rem', color: '#fff' }}>github.com/mvplaunch-ng/quickretail-mvp</h4>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', minWidth: 0 }}>
+                    <GithubIcon size={24} color="#fff" style={{ flexShrink: 0 }} />
+                    <div style={{ minWidth: 0 }}>
+                      <h4 style={{ fontSize: '1.05rem', color: '#fff', wordBreak: 'break-all' }}>github.com/mvplaunch-ng/quickretail-mvp</h4>
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Full Intellectual Property Transfer</p>
                     </div>
                   </div>

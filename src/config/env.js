@@ -38,7 +38,13 @@ const env = {
   // CORS
   CORS_ORIGIN: process.env.CORS_ORIGIN
     ? process.env.CORS_ORIGIN.split(',').map((o) => o.trim())
-    : ['http://localhost:3000', 'http://localhost:5173'],
+    : [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'https://mvplaunch-ng.onrender.com',
+        'http://localhost:5000',
+        'http://localhost:5005'
+      ],
 
   // Paystack
   PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || 'sk_test_mock_secret_key',

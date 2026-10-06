@@ -25,7 +25,7 @@ export default function ReviewsSection() {
   }, []);
 
   return (
-    <section id="reviews" style={{ padding: '6rem 0', background: 'var(--bg-surface)', position: 'relative' }}>
+    <section id="reviews" style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-surface)', position: 'relative' }}>
       <div className="container">
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
           <span className="badge badge-emerald" style={{ marginBottom: '0.75rem' }}>Verified Testimonials</span>
@@ -40,7 +40,7 @@ export default function ReviewsSection() {
         {/* Dynamic Reviews Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '1.5rem',
           marginBottom: '3.5rem'
         }}>
@@ -123,9 +123,9 @@ export default function ReviewsSection() {
         {/* Genuine Trust Badges */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
           gap: '1.5rem',
-          padding: '2rem',
+          padding: 'clamp(1.25rem, 3.5vw, 2rem)',
           background: 'var(--bg-card)',
           borderRadius: 'var(--radius-lg)',
           border: '1px solid var(--border-subtle)'

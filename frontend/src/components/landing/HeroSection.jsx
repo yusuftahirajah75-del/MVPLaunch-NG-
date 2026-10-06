@@ -7,7 +7,7 @@ export default function HeroSection() {
   const { setIdeaModalOpen } = useAuth();
 
   return (
-    <section style={{ position: 'relative', paddingTop: '4rem', paddingBottom: '5rem', overflow: 'hidden' }}>
+    <section style={{ position: 'relative', paddingTop: 'clamp(2.5rem, 5vw, 4rem)', paddingBottom: 'clamp(3rem, 6vw, 5rem)', overflow: 'hidden' }}>
       <div className="bg-mesh" />
 
       <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
@@ -21,7 +21,7 @@ export default function HeroSection() {
 
         {/* Hero Headline */}
         <h1 style={{
-          fontSize: 'clamp(2.4rem, 5.5vw, 4.2rem)',
+          fontSize: 'clamp(2.2rem, 5.5vw, 4.2rem)',
           fontWeight: 800,
           letterSpacing: '-0.03em',
           maxWidth: '960px',
@@ -51,7 +51,7 @@ export default function HeroSection() {
         </p>
 
         {/* CTAs */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="mobile-stack-buttons" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <button
             onClick={() => setIdeaModalOpen(true)}
             className="btn btn-primary btn-lg"

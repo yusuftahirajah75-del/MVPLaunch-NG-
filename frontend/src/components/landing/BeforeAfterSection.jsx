@@ -3,7 +3,7 @@ import { XCircle, CheckCircle, ArrowDown, Sparkles } from 'lucide-react';
 
 export default function BeforeAfterSection() {
   return (
-    <section style={{ padding: '6rem 0', background: 'var(--bg-base)', position: 'relative' }}>
+    <section style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-base)', position: 'relative' }}>
       <div className="container">
         <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 3.5rem' }}>
           <span className="badge badge-indigo" style={{ marginBottom: '0.75rem' }}>The Transformation</span>
@@ -17,7 +17,7 @@ export default function BeforeAfterSection() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '2rem'
         }}>
           {/* BEFORE CARD */}

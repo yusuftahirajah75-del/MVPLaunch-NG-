@@ -196,7 +196,7 @@ export default function ClientPortal({ onBackToLanding }) {
         top: 0,
         zIndex: 50
       }}>
-        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
             <button
               onClick={onBackToLanding}
@@ -227,7 +227,7 @@ export default function ClientPortal({ onBackToLanding }) {
       </header>
 
       {/* Main Container */}
-      <main className="container" style={{ padding: '2rem 1.5rem 5rem' }}>
+      <main className="container" style={{ padding: 'clamp(1.25rem, 3vw, 2rem) clamp(0.75rem, 2.5vw, 1.5rem) 5rem' }}>
         {notification && (
           <div style={{
             background: 'rgba(16, 185, 129, 0.12)',
@@ -306,7 +306,7 @@ export default function ClientPortal({ onBackToLanding }) {
                 paddingTop: '1.25rem',
                 borderTop: '1px solid var(--border-subtle)',
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 80px), 1fr))',
                 gap: '0.5rem',
                 textAlign: 'center'
               }}>
@@ -392,7 +392,7 @@ export default function ClientPortal({ onBackToLanding }) {
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1.25rem' }}>
                   <div className="card">
                     <h4 style={{ fontSize: '1rem', color: '#fff', marginBottom: '0.75rem' }}>Assigned Engineer</h4>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -478,7 +478,7 @@ export default function ClientPortal({ onBackToLanding }) {
 
             {/* 3. TASKS */}
             {activeTab === 'tasks' && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: '1rem' }}>
                 {tasks.map((t) => (
                   <div key={t.id} className="card" style={{ background: 'var(--bg-surface)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
@@ -557,13 +557,13 @@ export default function ClientPortal({ onBackToLanding }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', marginBottom: '2rem' }}>
                   <div style={{ padding: '1rem', background: 'var(--bg-surface)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
                     <strong>Repository: </strong>
-                    <code style={{ color: 'var(--accent-emerald-light)' }}>
+                    <code style={{ color: 'var(--accent-emerald-light)', wordBreak: 'break-all' }}>
                       {handover?.github_repo || 'https://github.com/mvplaunch-ng/quickretail-mvp'}
                     </code>
                   </div>
                   <div style={{ padding: '1rem', background: 'var(--bg-surface)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
                     <strong>Documentation: </strong>
-                    <span style={{ color: 'var(--text-secondary)' }}>
+                    <span style={{ color: 'var(--text-secondary)', wordBreak: 'break-all' }}>
                       {handover?.documentation_url || 'https://docs.mvplaunch.ng/projects/quickretail'}
                     </span>
                   </div>
@@ -582,7 +582,7 @@ export default function ClientPortal({ onBackToLanding }) {
 
             {/* 6. REVIEWS */}
             {activeTab === 'review' && (
-              <div className="card" style={{ maxWidth: '640px', margin: '0 auto', padding: '2rem' }}>
+              <div className="card" style={{ maxWidth: '640px', margin: '0 auto', padding: 'clamp(1.15rem, 4vw, 2rem)' }}>
                 <h3 style={{ fontSize: '1.3rem', color: '#fff', marginBottom: '0.5rem' }}>Leave a Verified Review</h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
                   Help other Nigerian students and founders know what it was like building with MVPLaunch NG.

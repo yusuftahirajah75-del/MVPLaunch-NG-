@@ -76,20 +76,19 @@ export default function PackageCheckoutModal({ packageData, isOpen, onClose }) {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose} style={{ zIndex: 1100 }}>
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 1100 }}>
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
         style={{
-          maxWidth: '560px',
-          width: '95%',
-          maxHeight: '90vh',
+          width: 'min(560px, calc(100vw - 1.5rem))',
+          maxHeight: 'calc(100vh - 2rem)',
           overflowY: 'auto',
           background: 'var(--bg-card)',
           borderRadius: 'var(--radius-xl)',
           border: '1px solid var(--border-subtle)',
           boxShadow: 'var(--shadow-xl)',
-          padding: '2rem'
+          padding: 'clamp(1.15rem, 4vw, 2rem)'
         }}
       >
         {/* Modal Header */}
@@ -120,7 +119,7 @@ export default function PackageCheckoutModal({ packageData, isOpen, onClose }) {
           padding: '1.25rem',
           marginBottom: '1.5rem'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <div>
               <strong style={{ fontSize: '1.15rem', color: '#fff' }}>{packageData.name}</strong>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{packageData.deliverable}</div>

@@ -6,10 +6,10 @@ export default function CtaBanner() {
   const { setIdeaModalOpen } = useAuth();
 
   return (
-    <section style={{ padding: '6rem 0', background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
+    <section style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-surface)', position: 'relative', overflow: 'hidden' }}>
       <div className="container">
         <div className="glass-panel" style={{
-          padding: '4rem 2rem',
+          padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 2rem)',
           borderRadius: 'var(--radius-xl)',
           textAlign: 'center',
           background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(99, 102, 241, 0.08) 50%, rgba(6, 9, 17, 0.9) 100%)',
@@ -48,7 +48,7 @@ export default function CtaBanner() {
             Tell us what problem you’re trying to solve. We’ll help turn your idea into a practical MVP plan with clear milestones and fixed pricing.
           </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className="mobile-stack-buttons" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
             <button
               onClick={() => setIdeaModalOpen(true)}
               className="btn btn-primary btn-lg"

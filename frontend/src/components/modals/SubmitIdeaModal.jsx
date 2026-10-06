@@ -56,7 +56,7 @@ export default function SubmitIdeaModal({ onIdeaSubmitted }) {
 
   return (
     <div className="modal-overlay" onClick={() => setIdeaModalOpen(false)}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: '2rem' }}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: 'clamp(1.15rem, 4vw, 2rem)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <div style={{
@@ -135,7 +135,7 @@ export default function SubmitIdeaModal({ onIdeaSubmitted }) {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))', gap: '0.75rem' }}>
               <div className="form-group">
                 <label className="form-label">Industry / Domain</label>
                 <select

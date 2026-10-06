@@ -30,7 +30,12 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
       if (!origin) return callback(null, true);
-      if (env.CORS_ORIGIN.includes(origin) || env.NODE_ENV === 'development') {
+      if (
+        env.CORS_ORIGIN.includes(origin) ||
+        origin.endsWith('.onrender.com') ||
+        origin.includes('mvplaunch-ng') ||
+        env.NODE_ENV === 'development'
+      ) {
         return callback(null, true);
       }
       return callback(new Error('Blocked by CORS policy'));

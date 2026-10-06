@@ -91,7 +91,7 @@ export default function TransformationPipeline() {
 
   return (
     <div className="glass-panel" style={{
-      padding: '2rem',
+      padding: 'clamp(1rem, 3.5vw, 2rem)',
       borderRadius: 'var(--radius-xl)',
       marginTop: '2.5rem',
       position: 'relative',
@@ -133,7 +133,7 @@ export default function TransformationPipeline() {
       {/* Stepper Buttons */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 115px), 1fr))',
         gap: '0.65rem',
         margin: '1.25rem 0 1.75rem'
       }}>
@@ -186,7 +186,7 @@ export default function TransformationPipeline() {
         background: 'var(--bg-surface)',
         border: '1px solid var(--border-card)',
         borderRadius: 'var(--radius-lg)',
-        padding: '1.75rem'
+        padding: 'clamp(1rem, 3vw, 1.75rem)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div>
@@ -270,10 +270,10 @@ export default function TransformationPipeline() {
 
         {current.id === 'deploy' && (
           <div style={{ background: 'var(--bg-card)', padding: '1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', marginTop: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-emerald)', display: 'inline-block' }} />
-                <code style={{ fontSize: '0.95rem', color: 'var(--accent-emerald-light)', fontWeight: 700 }}>{current.card.url}</code>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: 'var(--accent-emerald)', display: 'inline-block', flexShrink: 0 }} />
+                <code style={{ fontSize: '0.9rem', color: 'var(--accent-emerald-light)', fontWeight: 700, wordBreak: 'break-all' }}>{current.card.url}</code>
               </div>
               <span className="badge badge-emerald">Online</span>
             </div>

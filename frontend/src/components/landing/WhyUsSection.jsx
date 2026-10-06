@@ -42,7 +42,7 @@ const REASONS = [
 
 export default function WhyUsSection() {
   return (
-    <section id="why-us" style={{ padding: '6rem 0', background: 'var(--bg-base)', position: 'relative' }}>
+    <section id="why-us" style={{ padding: 'clamp(3.5rem, 6vw, 6rem) 0', background: 'var(--bg-base)', position: 'relative' }}>
       <div className="container">
         <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
           <span className="badge badge-emerald" style={{ marginBottom: '0.75rem' }}>The Distinction</span>
@@ -56,7 +56,7 @@ export default function WhyUsSection() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
           gap: '1.5rem'
         }}>
           {REASONS.map((r, idx) => {
