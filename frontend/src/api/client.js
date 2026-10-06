@@ -3,7 +3,9 @@
  * Wraps native fetch with credential cookies, Bearer token fallback, and standardized error parsing.
  */
 
-const API_BASE = '/api/v1';
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL
+  ? import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, '')
+  : '') + '/api/v1';
 
 class ApiClient {
   constructor() {
@@ -47,14 +49,29 @@ class ApiClient {
       const data = isJson ? await res.json() : await res.text();
 
       if (!res.ok || (isJson && data.success === false)) {
-        const error = new Error(data.message || `Request failed with status ${res.status}`);
+        let errorMsg = data?.message;
+        if (!errorMsg) {
+          if (res.status === 500 && (!isJson || !data)) {
+            errorMsg = 'Backend API server is unreachable on port 5005. Please make sure the backend server is running.';
+          } else if ([502, 503, 504].includes(res.status)) {
+            errorMsg = 'Backend service is temporarily unavailable. Please verify the server is running.';
+          } else {
+            errorMsg = `Request failed with status ${res.status}`;
+          }
+        }
+        const error = new Error(errorMsg);
         error.statusCode = res.status;
-        error.errors = data.errors || null;
+        error.errors = data?.errors || null;
         throw error;
       }
 
       return data;
     } catch (err) {
+      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+        const networkError = new Error('Cannot connect to MVPLaunch NG backend API. Make sure the backend server is running on port 5005.');
+        networkError.statusCode = 503;
+        throw networkError;
+      }
       if (err.statusCode === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/me')) {
         this.setToken(null);
       }
@@ -159,8 +176,17 @@ class ApiClient {
   // --- 11. Payments Module ---
   payments = {
     initialize: (body) => this.post('/payments/initialize', body),
-    verify: (reference) => this.post('/payments/verify', { reference }),
+    initializePackage: (body) => this.post('/payments/initialize-package', body),
+    verify: (reference) => this.get(`/payments/verify/${encodeURIComponent(reference)}`),
+    verifyPost: (reference) => this.post('/payments/verify', { reference }),
     getMy: (query = '') => this.get(`/payments/my${query}`)
+  };
+
+  // --- 11b. Packages Module ---
+  packages = {
+    getAll: () => this.get('/packages'),
+    getById: (id) => this.get(`/packages/${id}`),
+    initializeCheckout: (body) => this.post('/payments/initialize-package', body)
   };
 
   // --- 12. Deployments Module ---
@@ -207,6 +233,8 @@ class ApiClient {
   admin = {
     getMetrics: () => this.get('/admin/metrics'),
     getHealth: () => this.get('/admin/health'),
+    getOrders: (query = '') => this.get(`/admin/orders${query}`),
+    updateOrderFulfillment: (id, fulfillmentStatus) => this.patch(`/admin/orders/${id}/fulfillment`, { fulfillmentStatus }),
     listAuditLogs: (query = '') => this.get(`/audit-logs${query}`)
   };
 }

@@ -75,6 +75,7 @@ class PaystackProvider extends PaymentProvider {
     const payload = {
       email,
       amount: amountKobo,
+      currency: 'NGN',
       reference,
       callback_url: callbackUrl,
       metadata: {
@@ -92,18 +93,24 @@ class PaystackProvider extends PaymentProvider {
   }
 
   /**
-   * Verify transaction
+   * Verify transaction with Paystack
+   * @param {string} reference
+   * @param {object} [expectedPayment]
    */
-  async verifyTransaction(reference) {
+  async verifyTransaction(reference, expectedPayment = null) {
     if (this.isMock) {
       logger.info(`[Paystack MOCK] Verifying transaction: ${reference}`);
+      const mockAmount = expectedPayment ? parseFloat(expectedPayment.amount_ngn) : 5000;
       return {
         success: true,
         status: 'SUCCESSFUL',
-        amountNgn: 250000,
-        channel: 'mock_card',
+        amountNgn: mockAmount,
+        amountKobo: Math.round(mockAmount * 100),
+        currency: 'NGN',
+        channel: 'card',
         paidAt: new Date(),
-        metadata: { gateway_response: 'Successful (Mock)', simulated: true }
+        paystackTransactionId: `mock_tx_${Date.now()}`,
+        metadata: { gateway_response: 'Successful (Mock Simulation)', simulated: true }
       };
     }
 
@@ -113,9 +120,12 @@ class PaystackProvider extends PaymentProvider {
     return {
       success: isSuccessful,
       status: isSuccessful ? 'SUCCESSFUL' : 'FAILED',
+      amountKobo: data.amount || 0,
       amountNgn: data.amount ? data.amount / 100 : 0,
+      currency: data.currency || 'NGN',
       channel: data.channel || 'unknown',
       paidAt: data.paid_at ? new Date(data.paid_at) : new Date(),
+      paystackTransactionId: data.id ? String(data.id) : null,
       metadata: {
         gateway_response: data.gateway_response,
         bank: data.authorization?.bank,
@@ -127,6 +137,8 @@ class PaystackProvider extends PaymentProvider {
 
   /**
    * Verify HMAC SHA512 signature on incoming Paystack Webhook
+   * @param {string} signature
+   * @param {string|Buffer|object} rawBody
    */
   verifyWebhookSignature(signature, rawBody) {
     if (this.isMock && signature === 'mock_valid_signature') {
@@ -136,9 +148,10 @@ class PaystackProvider extends PaymentProvider {
       return false;
     }
 
+    const bodyString = typeof rawBody === 'string' ? rawBody : (Buffer.isBuffer(rawBody) ? rawBody.toString('utf8') : JSON.stringify(rawBody));
     const hash = crypto
       .createHmac('sha512', this.secretKey)
-      .update(typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody))
+      .update(bodyString)
       .digest('hex');
 
     return hash === signature;

@@ -39,6 +39,12 @@ function errorHandler(err, req, res, next) {
   } else if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     statusCode = 400;
     message = 'Malformed JSON in request body.';
+  } else if (
+    ['ECONNREFUSED', 'ETIMEDOUT', 'ENOTFOUND', '57P01', '57P02', '57P03'].includes(err.code) ||
+    err.message?.includes('connect ECONNREFUSED')
+  ) {
+    statusCode = 503;
+    message = 'Database service is temporarily unavailable. Please verify connectivity and try again.';
   }
 
   if (statusCode >= 500) {

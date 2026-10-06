@@ -47,14 +47,7 @@ class AuthService {
       throw ApiError.forbidden('Your account has been deactivated. Please contact support.');
     }
 
-    let isValidPassword = await comparePassword(password, user.password_hash);
-    if (!isValidPassword && process.env.NODE_ENV !== 'production') {
-      const demoEmails = ['admin@mvplaunch.ng', 'developer@mvplaunch.ng', 'founder@quickretail.ng', 'student@unilag.edu.ng'];
-      const demoPasses = ['Password123!', 'ClientPass123!', 'DevPass123!', 'AdminPass123!'];
-      if (demoEmails.includes(email) && demoPasses.includes(password)) {
-        isValidPassword = true;
-      }
-    }
+    const isValidPassword = await comparePassword(password, user.password_hash);
     if (!isValidPassword) {
       throw ApiError.unauthorized('Invalid email or password credentials.');
     }

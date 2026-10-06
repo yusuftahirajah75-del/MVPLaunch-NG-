@@ -1,60 +1,100 @@
 import React, { useState } from 'react';
-import { Check, ArrowRight, Calculator, Sparkles, Clock, ShieldCheck } from 'lucide-react';
+import {
+  Check, X as XIcon, ArrowRight, Calculator, Sparkles, Clock, ShieldCheck,
+  CreditCard, HelpCircle, AlertCircle, FileCheck, PhoneCall, Mail
+} from 'lucide-react';
+import PackageCheckoutModal from '../modals/PackageCheckoutModal';
 import { useAuth } from '../../context/AuthContext';
 
-const PACKAGES = [
+export const LAUNCH_PACKAGES = [
   {
-    name: 'Project Finish Sprint',
-    tagline: 'Have a prototype that needs finishing?',
-    duration: '1–2 Weeks',
-    suitableFor: 'Students & Hackathon finalists with partial code needing deployment & polish',
+    id: 'student-starter',
+    name: 'Student Starter',
+    priceNgn: 5000,
+    paymentType: 'One-time payment',
+    badge: 'Nigerian Students',
+    tagline: 'Personal portfolio or project showcase for students',
+    deliverable: 'A personal portfolio website or simple project landing page.',
+    timeline: '3–5 Business Days',
+    ctaText: 'Get Started — ₦5,000',
+    popular: false,
     features: [
-      'Audit existing frontend/backend code',
-      'Fix authentication & PostgreSQL database bugs',
-      'Paystack webhook setup & verification',
-      'Live staging deployment on Render with SSL',
-      'Ready for grant application / incubator demo'
+      'Mobile-responsive design tailored for smartphones',
+      'Projects & accomplishments showcase section',
+      'Bio, skills overview & verified social profile links',
+      'Direct contact or WhatsApp enquiry trigger',
+      'Deployment assistance on free tier hosting (Vercel/Render)'
     ],
-    ctaText: 'Get Sprint Estimate →',
-    popular: false
+    exclusions: [
+      'No user authentication or database accounts',
+      'No custom backend API or payment integration',
+      'No custom domain purchase included (domain cost extra)',
+      'Single-page layout (up to 4 focused sections)'
+    ]
   },
   {
-    name: 'Full MVP Build Sprint',
-    tagline: 'Have an idea that needs to become real?',
-    duration: '3–4 Weeks',
-    suitableFor: 'Founders & aspiring builders turning validated concepts into working MVPs',
+    id: 'mvp-starter',
+    name: 'MVP Starter',
+    priceNgn: 15000,
+    paymentType: 'One-time payment',
+    badge: 'Aspiring Founders & Builders',
+    tagline: 'Simple startup landing page or agreed MVP prototype',
+    deliverable: 'A simple startup landing page or agreed MVP prototype.',
+    timeline: '5–7 Business Days',
+    ctaText: 'Launch Your MVP — ₦15,000',
+    popular: true,
     features: [
-      'Problem clarification & MVP scope freezing',
-      'PostgreSQL normalized database architecture',
-      'Modern, mobile-responsive React web application',
-      'Complete Paystack checkout (Cards, USSD, Bank Transfers)',
-      'Live deployment + full GitHub repository handover',
-      '14 days post-handover bug warranty & support'
+      'Product introduction & unique value proposition block',
+      'Lead-capture waitlist form or customer enquiry trigger',
+      'Responsive interface optimized for Nigerian 3G/4G connections',
+      'Feature preview sections & call-to-action blocks',
+      'Basic staging and production deployment setup'
     ],
-    ctaText: 'Start Your MVP Build →',
-    popular: true
+    exclusions: [
+      'No complex multi-role backend or custom database clustering',
+      'No e-commerce cart with automated inventory dispatch',
+      'Third-party paid API subscription costs not included',
+      'Single-page web prototype (up to 6 sections)'
+    ]
   },
   {
-    name: 'Maintenance & Growth Retainer',
-    tagline: 'Already launched your MVP?',
-    duration: 'Monthly Ongoing',
-    suitableFor: 'Businesses needing continuous engineering support after going live',
+    id: 'business-launch',
+    name: 'Business Launch',
+    priceNgn: 35000,
+    paymentType: 'One-time payment',
+    badge: 'Small Businesses in Nigeria',
+    tagline: 'Basic business website with agreed service or product pages',
+    deliverable: 'A basic business website with agreed service or product pages.',
+    timeline: '7–10 Business Days',
+    ctaText: 'Launch Your Business — ₦35,000',
+    popular: false,
     features: [
-      'Dedicated monthly engineering support hours',
-      'Performance monitoring & security patch updates',
-      'Feature adjustments based on real user feedback',
-      'PostgreSQL automated backups & database tuning',
-      'Priority direct developer communication channel'
+      'Multi-section business website (Home, Services, About, Contact)',
+      'Customer enquiry & quote request functionality',
+      'Mobile-first responsive design tailored for local clients',
+      'Basic SEO setup (meta tags, OpenGraph preview, title hierarchy)',
+      'Deployment, basic DNS guidance, and full asset handover'
     ],
-    ctaText: 'Inquire About Retainers →',
-    popular: false
+    exclusions: [
+      'No automated monthly recurring billing or complex escrow engine',
+      'Custom domain registration fee billed directly by domain registrar',
+      'Client provides company text, logos, and product photos',
+      'Up to 4 distinct views / agreed sections'
+    ]
   }
 ];
 
 export default function PackagesSection() {
   const { setIdeaModalOpen } = useAuth();
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
 
-  // Interactive Scope Estimator State
+  const handleSelectPackage = (pkg) => {
+    setSelectedPackage(pkg);
+    setCheckoutModalOpen(true);
+  };
+
+  // Interactive Scope Estimator State for custom builds
   const [selectedFeatures, setSelectedFeatures] = useState({
     auth: true,
     paystack: true,
@@ -68,7 +108,6 @@ export default function PackagesSection() {
     setSelectedFeatures((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Dynamic estimate calculation
   const featureList = [
     { key: 'auth', name: 'User Authentication & Sessions (JWT + Cookie)', weeks: 0.5, cost: 80000 },
     { key: 'paystack', name: 'Paystack Automated Checkout & Webhooks', weeks: 0.5, cost: 100000 },
@@ -85,47 +124,48 @@ export default function PackagesSection() {
     <section id="services" style={{ padding: '6rem 0', background: 'var(--bg-base)', position: 'relative' }}>
       <div className="container">
         {/* Section Header */}
-        <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 3.5rem' }}>
-          <span className="badge badge-emerald" style={{ marginBottom: '0.75rem' }}>Service Pathways</span>
-          <h2 style={{ fontSize: 'clamp(2rem, 3.8vw, 2.8rem)', marginBottom: '1rem' }}>
-            Predictable Pathways to Launch.
+        <div style={{ textAlign: 'center', maxWidth: '820px', margin: '0 auto 3.5rem' }}>
+          <span className="badge badge-emerald" style={{ marginBottom: '0.75rem' }}>Fixed One-Time Pricing</span>
+          <h2 style={{ fontSize: 'clamp(2rem, 3.8vw, 2.8rem)', marginBottom: '1rem', color: '#fff' }}>
+            Affordable Launch Packages for Nigeria.
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.6' }}>
-            We work on fixed, transparent milestone commitments. Every proposal details exact deliverables, timelines in weeks, and escrow payments tied to your sign-off.
+            Transparent, one-time payments in Nigerian naira (₦). Defined deliverables, zero hidden fees, and secure Paystack checkout.
           </p>
         </div>
 
-        {/* 3 Package Cards */}
+        {/* 3 Main Package Cards */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
-          gap: '1.5rem',
-          marginBottom: '4.5rem'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '1.75rem',
+          marginBottom: '4rem'
         }}>
-          {PACKAGES.map((pkg, idx) => (
+          {LAUNCH_PACKAGES.map((pkg) => (
             <div
-              key={idx}
+              key={pkg.id}
               className="card"
               style={{
-                background: pkg.popular ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, var(--bg-card) 40%)' : 'var(--bg-card)',
+                background: pkg.popular ? 'linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 45%)' : 'var(--bg-card)',
                 borderColor: pkg.popular ? 'var(--accent-emerald)' : 'var(--border-subtle)',
-                boxShadow: pkg.popular ? 'var(--shadow-glow)' : 'var(--shadow-sm)',
+                boxShadow: pkg.popular ? '0 12px 30px rgba(16, 185, 129, 0.15)' : 'var(--shadow-sm)',
                 display: 'flex',
                 flexDirection: 'column',
-                position: 'relative'
+                position: 'relative',
+                borderRadius: 'var(--radius-lg)'
               }}
             >
               {pkg.popular && (
                 <div style={{
                   position: 'absolute',
-                  top: '-12px',
+                  top: '-13px',
                   left: '50%',
                   transform: 'translateX(-50%)',
                   background: 'var(--accent-emerald)',
                   color: '#032014',
                   fontWeight: 800,
-                  fontSize: '0.72rem',
-                  padding: '3px 12px',
+                  fontSize: '0.74rem',
+                  padding: '3px 14px',
                   borderRadius: '999px',
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em'
@@ -134,51 +174,150 @@ export default function PackagesSection() {
                 </div>
               )}
 
-              <div style={{ marginBottom: '1.25rem' }}>
-                <h3 style={{ fontSize: '1.35rem', color: '#fff', marginBottom: '0.35rem' }}>{pkg.name}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>{pkg.tagline}</p>
+              {/* Package Header */}
+              <div style={{ marginBottom: '1rem' }}>
+                <span className="badge badge-emerald" style={{ fontSize: '0.72rem', marginBottom: '0.5rem' }}>
+                  {pkg.badge}
+                </span>
+                <h3 style={{ fontSize: '1.45rem', color: '#fff', marginBottom: '0.35rem' }}>{pkg.name}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', minHeight: '40px' }}>{pkg.tagline}</p>
               </div>
 
+              {/* Price Banner */}
               <div style={{
                 background: 'rgba(255, 255, 255, 0.03)',
-                padding: '0.75rem 1rem',
-                borderRadius: 'var(--radius-sm)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
+                padding: '1rem',
+                borderRadius: 'var(--radius-md)',
                 marginBottom: '1.25rem',
-                border: '1px solid var(--border-subtle)'
+                border: '1px solid var(--border-subtle)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline'
               }}>
-                <Clock size={16} color="var(--accent-emerald)" />
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>Timeline: {pkg.duration}</span>
+                <div>
+                  <div style={{ fontSize: '2.1rem', fontWeight: 900, color: 'var(--accent-emerald-light)' }}>
+                    ₦{pkg.priceNgn.toLocaleString()}
+                  </div>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    {pkg.paymentType}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.82rem', color: '#fff' }}>
+                  <Clock size={15} color="var(--accent-emerald)" />
+                  <span>{pkg.timeline}</span>
+                </div>
               </div>
 
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: '1.25rem', lineHeight: '1.5' }}>
-                Ideal for: {pkg.suitableFor}
+              {/* Exact Deliverable */}
+              <div style={{
+                background: 'rgba(16, 185, 129, 0.05)',
+                borderLeft: '3px solid var(--accent-emerald)',
+                padding: '0.65rem 0.85rem',
+                borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
+                fontSize: '0.84rem',
+                color: '#e2e8f0',
+                marginBottom: '1.25rem',
+                lineHeight: '1.4'
+              }}>
+                <strong>Deliverable:</strong> {pkg.deliverable}
               </div>
 
-              {/* Feature Checklist */}
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '2rem', flex: 1 }}>
-                {pkg.features.map((feat, fIdx) => (
-                  <li key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.88rem', color: '#e2e8f0' }}>
-                    <Check size={16} color="var(--accent-emerald)" style={{ flexShrink: 0, marginTop: '3px' }} />
-                    <span>{feat}</span>
-                  </li>
-                ))}
-              </ul>
+              {/* Included Features */}
+              <div style={{ marginBottom: '1rem', flex: 1 }}>
+                <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: 'var(--text-muted)', fontWeight: 700, marginBottom: '0.6rem' }}>
+                  Included In Scope:
+                </div>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.55rem', padding: 0, margin: 0 }}>
+                  {pkg.features.map((feat, fIdx) => (
+                    <li key={fIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', fontSize: '0.86rem', color: '#cbd5e1' }}>
+                      <Check size={16} color="var(--accent-emerald)" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
+              {/* Explicit Exclusions */}
+              <div style={{
+                background: 'rgba(239, 68, 68, 0.04)',
+                border: '1px solid rgba(239, 68, 68, 0.15)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.75rem',
+                marginBottom: '1.5rem'
+              }}>
+                <div style={{ fontSize: '0.74rem', textTransform: 'uppercase', color: '#f87171', fontWeight: 700, marginBottom: '0.4rem' }}>
+                  Scope Exclusions:
+                </div>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.35rem', padding: 0, margin: 0 }}>
+                  {pkg.exclusions.map((excl, eIdx) => (
+                    <li key={eIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.45rem', fontSize: '0.78rem', color: '#94a3b8' }}>
+                      <XIcon size={14} color="#f87171" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <span>{excl}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Direct Paystack CTA Button */}
               <button
-                onClick={() => setIdeaModalOpen(true)}
+                id={`buy-${pkg.id}`}
+                onClick={() => handleSelectPackage(pkg)}
                 className={`btn ${pkg.popular ? 'btn-primary' : 'btn-secondary'}`}
-                style={{ width: '100%' }}
+                style={{
+                  width: '100%',
+                  padding: '0.9rem',
+                  fontSize: '0.96rem',
+                  fontWeight: 800,
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
               >
+                <CreditCard size={17} />
                 <span>{pkg.ctaText}</span>
               </button>
             </div>
           ))}
         </div>
 
-        {/* Interactive Scope & Timeline Estimator */}
+        {/* Transparent Service Terms & Delivery Process Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1.25rem',
+          marginBottom: '3.5rem'
+        }}>
+          <div className="card" style={{ background: 'var(--bg-card)', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem' }}>
+              <FileCheck size={20} color="var(--accent-emerald)" />
+              <h4 style={{ fontSize: '1.05rem', color: '#fff', margin: 0 }}>Delivery & Revision Process</h4>
+            </div>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+              After checkout, our team reaches out within 24 hours. You submit project text, logos, and links. Each package includes 2 to 3 rounds of revisions within 7–14 days of prototype delivery.
+            </p>
+          </div>
+
+          <div className="card" style={{ background: 'var(--bg-card)', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem' }}>
+              <ShieldCheck size={20} color="var(--accent-emerald)" />
+              <h4 style={{ fontSize: '1.05rem', color: '#fff', margin: 0 }}>Domain & Third-Party Fees</h4>
+            </div>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+              Packages cover complete design and engineering deliverables. Custom domains (.ng / .com) and paid third-party hosting are billed directly by registrars at cost.
+            </p>
+          </div>
+
+          <div className="card" style={{ background: 'var(--bg-card)', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.65rem' }}>
+              <Mail size={20} color="var(--accent-emerald)" />
+              <h4 style={{ fontSize: '1.05rem', color: '#fff', margin: 0 }}>Support & Refund Policy</h4>
+            </div>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+              Orders are 100% refundable before development begins. Reach our verified support team anytime via <strong style={{ color: '#fff' }}>support@mvplaunch.ng</strong> or our dedicated WhatsApp desk.
+            </p>
+          </div>
+        </div>
+
+        {/* Interactive Scope & Custom MVP Estimator */}
         <div className="glass-panel" style={{
           padding: '2.5rem',
           borderRadius: 'var(--radius-xl)',
@@ -186,10 +325,10 @@ export default function PackagesSection() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.5rem' }}>
             <Calculator size={22} color="var(--accent-emerald)" />
-            <h3 style={{ fontSize: '1.4rem', color: '#fff' }}>Interactive Project Scope & Timeline Estimator</h3>
+            <h3 style={{ fontSize: '1.4rem', color: '#fff' }}>Need A Larger Custom MVP Architecture?</h3>
           </div>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.75rem' }}>
-            Select the components your MVP needs to get a realistic development timeline estimate:
+            If your startup requires full relational databases, automated Paystack payment escrows, multi-role user authentication, or mobile PWA features, use our custom scope estimator below:
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem', marginBottom: '2rem' }}>
@@ -241,7 +380,7 @@ export default function PackagesSection() {
             </div>
 
             <div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Estimated Investment Range</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Custom Estimate Range</div>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff' }}>
                 ₦{totalEstimatedCost.toLocaleString()} – ₦{(totalEstimatedCost * 1.3).toLocaleString()}
               </div>
@@ -249,15 +388,22 @@ export default function PackagesSection() {
 
             <button
               onClick={() => setIdeaModalOpen(true)}
-              className="btn btn-primary"
+              className="btn btn-secondary"
               style={{ padding: '0.8rem 1.5rem' }}
             >
-              <span>Get Precise Project Proposal</span>
+              <span>Submit Custom MVP Inquiry</span>
               <ArrowRight size={16} />
             </button>
           </div>
         </div>
       </div>
+
+      {/* Package Checkout Modal */}
+      <PackageCheckoutModal
+        packageData={selectedPackage}
+        isOpen={checkoutModalOpen}
+        onClose={() => setCheckoutModalOpen(false)}
+      />
     </section>
   );
 }

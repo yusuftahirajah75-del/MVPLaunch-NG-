@@ -95,6 +95,46 @@ class AdminService {
       memoryUsage: process.memoryUsage()
     };
   }
+
+  async getOrders({ status = null, limit = 50, offset = 0 } = {}) {
+    let sql = `
+      SELECT o.*,
+             c.full_name as client_name, c.email as client_email,
+             p.title as project_title,
+             pay.provider_reference, pay.channel, pay.paid_at, pay.status as payment_record_status, pay.paystack_transaction_id
+      FROM orders o
+      LEFT JOIN users c ON c.id = o.client_id
+      LEFT JOIN projects p ON p.id = o.project_id
+      LEFT JOIN payments pay ON pay.order_id = o.id
+      WHERE 1=1
+    `;
+    const params = [];
+    if (status) {
+      params.push(status);
+      sql += ` AND o.payment_status = $${params.length}`;
+    }
+    sql += ` ORDER BY o.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+    params.push(limit, offset);
+
+    const res = await db.query(sql, params);
+    const countRes = await db.query(
+      status ? `SELECT COUNT(*) FROM orders WHERE payment_status = $1` : `SELECT COUNT(*) FROM orders`,
+      status ? [status] : []
+    );
+
+    return {
+      orders: res.rows,
+      total: parseInt(countRes.rows[0].count, 10)
+    };
+  }
+
+  async updateOrderFulfillment(orderId, fulfillmentStatus) {
+    const res = await db.query(
+      `UPDATE orders SET fulfillment_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
+      [fulfillmentStatus, orderId]
+    );
+    return res.rows[0];
+  }
 }
 
 module.exports = new AdminService();

@@ -41,8 +41,15 @@ app.use(
   })
 );
 
-// 3. Body Parsing & Cookies
-app.use(express.json({ limit: '10mb' }));
+// 3. Body Parsing & Cookies (capturing rawBody for Paystack webhook HMAC verification)
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString('utf8');
+    }
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
@@ -64,8 +71,14 @@ try {
   console.warn('[Swagger] Warning: could not load openapi.yaml:', err.message);
 }
 
+const fs = require('fs');
+
 // 6. Root route
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
+  const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+  if (fs.existsSync(frontendDistPath) && env.NODE_ENV !== 'test' && !req.xhr && req.accepts('html')) {
+    return res.sendFile(path.join(frontendDistPath, 'index.html'));
+  }
   res.json({
     name: env.APP_NAME,
     tagline: 'Turn your validated idea into something real you can show people.',
@@ -80,6 +93,22 @@ app.use(env.API_PREFIX, apiLimiter);
 
 // 8. Mount Master API Router
 app.use(env.API_PREFIX, apiRouter);
+
+// 9. Static Frontend SPA fallback (Production / Render single service)
+const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+if (fs.existsSync(frontendDistPath) && env.NODE_ENV !== 'test') {
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (
+      req.path.startsWith(env.API_PREFIX) ||
+      req.path.startsWith('/uploads') ||
+      req.path.startsWith('/api-docs')
+    ) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
 
 // 9. 404 & Centralized Error Handlers
 app.use(notFoundHandler);

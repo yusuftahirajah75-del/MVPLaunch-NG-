@@ -47,28 +47,36 @@ async function seedDatabase() {
 
     const adminUser = await client.query(
       `INSERT INTO users (email, password_hash, full_name, phone_number, role, is_active, is_verified, bio)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, is_active = true
+       RETURNING id`,
       ['admin@mvplaunch.ng', adminPass, 'Emeka Okonkwo', '+2348031234567', 'ADMIN', true, true, 'Lead Architect & MVPLaunch Director']
     );
     const adminId = adminUser.rows[0].id;
 
     const devUser = await client.query(
       `INSERT INTO users (email, password_hash, full_name, phone_number, role, is_active, is_verified, bio)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, is_active = true
+       RETURNING id`,
       ['developer@mvplaunch.ng', devPass, 'Adebayo Olufemi', '+2348029876543', 'DEVELOPER', true, true, 'Senior Full-Stack MVP Engineer (Node.js & React)']
     );
     const devId = devUser.rows[0].id;
 
     const clientUser1 = await client.query(
       `INSERT INTO users (email, password_hash, full_name, phone_number, role, is_active, is_verified, bio)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, is_active = true
+       RETURNING id`,
       ['founder@quickretail.ng', clientPass, 'Chioma Adeleke', '+2348145556677', 'CLIENT', true, true, 'Founder of QuickRetail Nigeria']
     );
     const clientId1 = clientUser1.rows[0].id;
 
     const clientUser2 = await client.query(
       `INSERT INTO users (email, password_hash, full_name, phone_number, role, is_active, is_verified, bio)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, is_active = true
+       RETURNING id`,
       ['student@unilag.edu.ng', clientPass, 'Tunde Bakare', '+2348123334455', 'CLIENT', true, true, 'UNILAG Final Year Tech Entrepreneur']
     );
     const clientId2 = clientUser2.rows[0].id;

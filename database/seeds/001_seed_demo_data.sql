@@ -2,14 +2,17 @@
 -- Seed: 001_seed_demo_data.sql
 -- Default passwords are encrypted with bcrypt (Password123!)
 
--- Insert default admin, developer, and client accounts
+-- Insert default admin, developer, and client accounts (AdminPass123!, DevPass123!, ClientPass123!)
 INSERT INTO users (id, email, password_hash, full_name, phone_number, role, is_active, is_verified, bio)
 VALUES 
-  ('11111111-1111-1111-1111-111111111111', 'admin@mvplaunch.ng', '$2a$10$tZzC83DqP1nBf8pUf086s.P4Vj08s6PjLw5b9o7tW4O7r7Z4Z4Z4Z', 'Emeka Okonkwo', '+2348031234567', 'ADMIN', true, true, 'Lead Architect & MVPLaunch Director'),
-  ('22222222-2222-2222-2222-222222222222', 'developer@mvplaunch.ng', '$2a$10$tZzC83DqP1nBf8pUf086s.P4Vj08s6PjLw5b9o7tW4O7r7Z4Z4Z4Z', 'Adebayo Olufemi', '+2348029876543', 'DEVELOPER', true, true, 'Senior Full-Stack MVP Engineer (Node.js & React)'),
-  ('33333333-3333-3333-3333-333333333333', 'founder@quickretail.ng', '$2a$10$tZzC83DqP1nBf8pUf086s.P4Vj08s6PjLw5b9o7tW4O7r7Z4Z4Z4Z', 'Chioma Adeleke', '+2348145556677', 'CLIENT', true, true, 'Founder of QuickRetail Nigeria'),
-  ('44444444-4444-4444-4444-444444444444', 'student@unilag.edu.ng', '$2a$10$tZzC83DqP1nBf8pUf086s.P4Vj08s6PjLw5b9o7tW4O7r7Z4Z4Z4Z', 'Tunde Bakare', '+2348123334455', 'CLIENT', true, true, 'UNILAG Final Year Tech Entrepreneur')
-ON CONFLICT (email) DO NOTHING;
+  ('11111111-1111-1111-1111-111111111111', 'admin@mvplaunch.ng', '$2a$10$FmmegrlyW9TlQaiwI5hZJO83h/DqgW32g4HAbLK8pN4EdKwkEnwgm', 'Emeka Okonkwo', '+2348031234567', 'ADMIN', true, true, 'Lead Architect & MVPLaunch Director'),
+  ('22222222-2222-2222-2222-222222222222', 'developer@mvplaunch.ng', '$2a$10$NZQ22r4x6Wj2mbQ9iX369OH3VzbbafymK0BCdVbXzE7ecd6ll9P5u', 'Adebayo Olufemi', '+2348029876543', 'DEVELOPER', true, true, 'Senior Full-Stack MVP Engineer (Node.js & React)'),
+  ('33333333-3333-3333-3333-333333333333', 'founder@quickretail.ng', '$2a$10$fzEkIUGrJS7dJ6A0OC4g3uICMTc4vj1CTvrIL2denleT9DSG48/h6', 'Chioma Adeleke', '+2348145556677', 'CLIENT', true, true, 'Founder of QuickRetail Nigeria'),
+  ('44444444-4444-4444-4444-444444444444', 'student@unilag.edu.ng', '$2a$10$fzEkIUGrJS7dJ6A0OC4g3uICMTc4vj1CTvrIL2denleT9DSG48/h6', 'Tunde Bakare', '+2348123334455', 'CLIENT', true, true, 'UNILAG Final Year Tech Entrepreneur')
+ON CONFLICT (email) DO UPDATE SET
+  password_hash = EXCLUDED.password_hash,
+  role = EXCLUDED.role,
+  is_active = EXCLUDED.is_active;
 
 -- Insert Ideas
 INSERT INTO ideas (id, client_id, title, raw_summary, target_industry, budget_bracket, target_timeline, status)

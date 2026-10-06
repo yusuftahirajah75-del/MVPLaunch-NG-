@@ -5,12 +5,18 @@ const app = require('./app');
 const env = require('./config/env');
 const db = require('./config/db');
 const logger = require('./utils/logger');
+const { ensureDemoUsers } = require('./modules/auth/demoSeed.service');
 
 async function startServer() {
   // Test PostgreSQL connection
   const dbHealth = await db.testConnection();
   if (dbHealth.success) {
     logger.info(`Connected to PostgreSQL database at ${env.DB_HOST}:${env.DB_PORT}/${env.DB_NAME}`);
+    try {
+      await ensureDemoUsers();
+    } catch (seedErr) {
+      logger.warn(`Notice: Demo accounts verification deferred: ${seedErr.message}`);
+    }
   } else {
     logger.warn(`PostgreSQL connection notice: ${dbHealth.error}`);
     logger.info('To connect to a live database, ensure PostgreSQL is running or set DATABASE_URL in .env');

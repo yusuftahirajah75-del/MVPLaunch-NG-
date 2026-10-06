@@ -12,6 +12,7 @@ const apiLimiter = rateLimit({
   max: env.RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => env.NODE_ENV === 'test',
   handler: (req, res) => {
     return ApiResponse.error(
       res,
@@ -27,6 +28,7 @@ const authLimiter = rateLimit({
   max: env.AUTH_RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => env.NODE_ENV === 'test',
   handler: (req, res) => {
     return ApiResponse.error(
       res,

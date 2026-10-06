@@ -11,9 +11,9 @@ class OrdersRepository {
               c.full_name as client_name, c.email as client_email,
               pr.title as proposal_title
        FROM orders o
-       JOIN projects p ON p.id = o.project_id
-       JOIN users c ON c.id = o.client_id
-       JOIN proposals pr ON pr.id = o.proposal_id
+       LEFT JOIN projects p ON p.id = o.project_id
+       LEFT JOIN users c ON c.id = o.client_id
+       LEFT JOIN proposals pr ON pr.id = o.proposal_id
        WHERE o.id = $1`,
       [id]
     );
@@ -29,8 +29,8 @@ class OrdersRepository {
     let query = `
       SELECT o.*, p.title as project_title, c.full_name as client_name
       FROM orders o
-      JOIN projects p ON p.id = o.project_id
-      JOIN users c ON c.id = o.client_id
+      LEFT JOIN projects p ON p.id = o.project_id
+      LEFT JOIN users c ON c.id = o.client_id
       WHERE 1=1
     `;
     const params = [];
@@ -67,6 +67,14 @@ class OrdersRepository {
     const res = await db.query(
       `UPDATE orders SET payment_status = $1 WHERE id = $2 RETURNING *`,
       [paymentStatus, id]
+    );
+    return res.rows[0];
+  }
+
+  async updateFulfillmentStatus(id, fulfillmentStatus) {
+    const res = await db.query(
+      `UPDATE orders SET fulfillment_status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
+      [fulfillmentStatus, id]
     );
     return res.rows[0];
   }

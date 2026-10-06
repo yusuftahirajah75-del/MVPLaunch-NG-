@@ -17,13 +17,16 @@ import SubmitIdeaModal from './components/modals/SubmitIdeaModal';
 import ClientPortal from './components/portal/ClientPortal';
 import DeveloperPortal from './components/portal/DeveloperPortal';
 import AdminPortal from './components/portal/AdminPortal';
+import PaymentCallback from './components/portal/PaymentCallback';
 
 export default function App() {
   const { user } = useAuth();
-  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'client' | 'developer' | 'admin'
+  const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'client' | 'developer' | 'admin' | 'payment-callback'
 
-  // When a user logs in, automatically navigate to their portal
+  // When a user logs in, automatically navigate to their portal (unless viewing payment callback)
   useEffect(() => {
+    if (currentView === 'payment-callback') return;
+
     if (user && user.role) {
       const targetView = user.role.toLowerCase();
       setCurrentView(targetView);
@@ -35,7 +38,16 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
     const hash = window.location.hash.replace('#', '');
+    const pathname = window.location.pathname;
+
+    // Detect Paystack checkout return
+    if (params.get('reference') || params.get('trxref') || pathname.includes('/payments/callback') || hash === 'payment-callback') {
+      setCurrentView('payment-callback');
+      return;
+    }
+
     if (['client', 'developer', 'admin'].includes(hash)) {
       setCurrentView(hash);
     }
@@ -51,7 +63,11 @@ export default function App() {
     window.location.hash = '';
   };
 
-  // Render Portals if user navigates to them
+  // Render Portals or Payment Callback if user navigates to them
+  if (currentView === 'payment-callback') {
+    return <PaymentCallback onBackToHome={navigateToLanding} onNavigatePortal={navigateToPortal} />;
+  }
+
   if (currentView === 'client') {
     return (
       <>

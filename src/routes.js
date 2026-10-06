@@ -21,6 +21,7 @@ const validationRoutes = require('./modules/validation/validation.routes');
 const maintenanceRoutes = require('./modules/maintenance/maintenance.routes');
 const reviewsRoutes = require('./modules/reviews/reviews.routes');
 const notificationsRoutes = require('./modules/notifications/notifications.routes');
+const packagesRoutes = require('./modules/packages/packages.routes');
 const { router: adminRoutes } = require('./modules/admin/admin.routes');
 const { router: auditRoutes } = require('./modules/audit/audit.routes');
 
@@ -38,7 +39,7 @@ apiRouter.get('/health', (req, res) => {
   });
 });
 
-// Mount all 21 modular sub-routers
+// Mount modular sub-routers
 apiRouter.use('/auth', authRoutes);
 apiRouter.use('/users', usersRoutes);
 apiRouter.use('/ideas', ideasRoutes);
@@ -51,6 +52,7 @@ apiRouter.use('/tasks', tasksRoutes);
 apiRouter.use('/files', filesRoutes);
 apiRouter.use('/messages', messagesRoutes);
 apiRouter.use('/payments', paymentsRoutes);
+apiRouter.use('/packages', packagesRoutes);
 apiRouter.use('/deployments', deploymentsRoutes);
 apiRouter.use('/handover', handoverRoutes);
 apiRouter.use('/validation', validationRoutes);
