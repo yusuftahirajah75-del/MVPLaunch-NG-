@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { X, Lock, Mail, User, Phone, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
-import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
+import { X, Lock, Mail, User, Phone, AlertCircle, ArrowRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AuthModal() {
-  const { authModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode, login, register, quickDemoLogin } = useAuth();
+  const { authModalOpen, setAuthModalOpen, authModalMode, setAuthModalMode, login, register } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -54,50 +54,6 @@ export default function AuthModal() {
           >
             <X size={20} />
           </button>
-        </div>
-
-        {/* 1-Click Demo Quick Logins */}
-        <div style={{
-          background: 'rgba(99, 102, 241, 0.08)',
-          border: '1px solid rgba(99, 102, 241, 0.25)',
-          borderRadius: 'var(--radius-md)',
-          padding: '1rem',
-          marginBottom: '1.5rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.78rem', fontWeight: 700, color: '#a5b4fc', textTransform: 'uppercase', marginBottom: '0.6rem' }}>
-            <Sparkles size={14} />
-            <span>Instant Demo Logins (Pre-Seeded Test Roles)</span>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '0.5rem' }}>
-            {DEMO_ACCOUNTS.map((acc, i) => (
-              <button
-                key={i}
-                type="button"
-                disabled={loading}
-                onClick={async () => {
-                  setError(null);
-                  setLoading(true);
-                  try {
-                    await quickDemoLogin(acc);
-                  } catch (err) {
-                    setError(err.message || 'Demo login failed. Make sure backend is running on port 5005.');
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                className="btn btn-secondary btn-sm"
-                style={{
-                  fontSize: '0.75rem',
-                  padding: '0.4rem 0.5rem',
-                  justifyContent: 'center',
-                  background: 'var(--bg-surface)'
-                }}
-              >
-                {acc.title}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Mode Toggle */}

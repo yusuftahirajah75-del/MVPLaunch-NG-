@@ -73,16 +73,27 @@ export default function App() {
       <>
         <ClientPortal onBackToLanding={navigateToLanding} />
         <SubmitIdeaModal onIdeaSubmitted={() => {}} />
+        <AuthModal />
       </>
     );
   }
 
   if (currentView === 'developer') {
-    return <DeveloperPortal onBackToLanding={navigateToLanding} />;
+    return (
+      <>
+        <DeveloperPortal onBackToLanding={navigateToLanding} />
+        <AuthModal />
+      </>
+    );
   }
 
   if (currentView === 'admin') {
-    return <AdminPortal onBackToLanding={navigateToLanding} />;
+    return (
+      <>
+        <AdminPortal onBackToLanding={navigateToLanding} />
+        <AuthModal />
+      </>
+    );
   }
 
   // Default: Public Landing Page

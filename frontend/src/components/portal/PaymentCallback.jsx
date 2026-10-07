@@ -7,7 +7,7 @@ import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
 
 export default function PaymentCallback({ onBackToHome, onNavigatePortal }) {
-  const { user } = useAuth();
+  const { user, setIdeaModalOpen } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
@@ -207,11 +207,40 @@ export default function PaymentCallback({ onBackToHome, onNavigatePortal }) {
             {/* Action Buttons */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button
-                onClick={onBackToHome}
+                onClick={() => {
+                  onNavigatePortal('client');
+                  setIdeaModalOpen(true);
+                }}
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '0.85rem', fontWeight: 700, justifyContent: 'center' }}
+                style={{
+                  width: '100%',
+                  padding: '0.95rem',
+                  fontWeight: 800,
+                  justifyContent: 'center',
+                  background: 'var(--accent-emerald)',
+                  color: '#032014',
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+                }}
               >
-                <Home size={18} />
+                <ArrowRight size={18} />
+                <span>Submit Your Project Brief Now</span>
+              </button>
+
+              <button
+                onClick={() => onNavigatePortal('client')}
+                className="btn btn-secondary"
+                style={{ width: '100%', padding: '0.85rem', fontWeight: 600, justifyContent: 'center' }}
+              >
+                <FileText size={18} />
+                <span>Go to Client Workspace</span>
+              </button>
+
+              <button
+                onClick={onBackToHome}
+                className="btn btn-ghost"
+                style={{ width: '100%', padding: '0.75rem', justifyContent: 'center', color: 'var(--text-secondary)' }}
+              >
+                <Home size={16} />
                 <span>Return to Homepage</span>
               </button>
 

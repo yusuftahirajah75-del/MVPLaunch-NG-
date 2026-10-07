@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Rocket, ShieldCheck, ChevronDown, LogIn, User, Sparkles, LayoutDashboard, Menu, X } from 'lucide-react';
-import { useAuth, DEMO_ACCOUNTS } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar({ onNavigatePortal }) {
-  const { user, logout, openLogin, openRegister, setIdeaModalOpen, quickDemoLogin } = useAuth();
-  const [demoMenuOpen, setDemoMenuOpen] = useState(false);
+  const { user, logout, openLogin, openRegister, setIdeaModalOpen } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -64,79 +63,8 @@ export default function Navbar({ onNavigatePortal }) {
           <a href="#faq" className="btn-ghost" style={{ fontSize: '0.9rem', fontWeight: 600 }}>FAQ</a>
         </div>
 
-        {/* Actions & Demo Switcher */}
+        {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          {/* Quick Demo Switcher (Desktop) */}
-          <div className="hide-on-mobile" style={{ position: 'relative' }}>
-            <button
-              onClick={() => setDemoMenuOpen(!demoMenuOpen)}
-              className="btn btn-secondary btn-sm"
-              style={{
-                background: 'rgba(99, 102, 241, 0.12)',
-                borderColor: 'rgba(99, 102, 241, 0.3)',
-                color: '#c7d2fe',
-                gap: '0.35rem'
-              }}
-              title="Test all 3 roles instantly with pre-seeded demo accounts"
-            >
-              <Sparkles size={14} color="#818cf8" />
-              <span>Demo Accounts</span>
-              <ChevronDown size={14} />
-            </button>
-
-            {demoMenuOpen && (
-              <div style={{
-                position: 'absolute',
-                top: 'calc(100% + 8px)',
-                right: 0,
-                width: '280px',
-                background: 'var(--bg-card)',
-                border: '1px solid var(--border-card)',
-                borderRadius: 'var(--radius-md)',
-                boxShadow: 'var(--shadow-lg)',
-                padding: '0.6rem',
-                zIndex: 200
-              }}>
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, padding: '0.4rem 0.5rem' }}>
-                  1-Click Role Logins
-                </div>
-                {DEMO_ACCOUNTS.map((acc, idx) => (
-                  <button
-                    key={idx}
-                    onClick={async () => {
-                      try {
-                        await quickDemoLogin(acc);
-                        setDemoMenuOpen(false);
-                        onNavigatePortal(acc.role.toLowerCase());
-                      } catch (err) {
-                        alert(err.message || 'Demo login failed. Make sure the backend server is running on port 5005.');
-                      }
-                    }}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '0.6rem 0.75rem',
-                      borderRadius: 'var(--radius-sm)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      transition: 'background var(--transition-fast)'
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-card-hover)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '0.85rem', color: '#fff' }}>{acc.title}</div>
-                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{acc.tag}</div>
-                    </div>
-                    <span className={`badge ${acc.role === 'ADMIN' ? 'badge-amber' : acc.role === 'DEVELOPER' ? 'badge-indigo' : 'badge-emerald'}`}>
-                      {acc.role}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
 
           {user ? (
             /* Authenticated User Menu */
@@ -312,36 +240,6 @@ export default function Navbar({ onNavigatePortal }) {
             </a>
           </div>
 
-          {/* Quick Demo Accounts for Testing */}
-          <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '0.85rem' }}>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-              <Sparkles size={13} color="#818cf8" />
-              <span>1-Click Demo Accounts</span>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.4rem' }}>
-              {DEMO_ACCOUNTS.map((acc, idx) => (
-                <button
-                  key={idx}
-                  onClick={async () => {
-                    try {
-                      await quickDemoLogin(acc);
-                      closeMobile();
-                      onNavigatePortal(acc.role.toLowerCase());
-                    } catch (err) {
-                      alert(err.message || 'Demo login failed');
-                    }
-                  }}
-                  className="btn btn-secondary btn-sm"
-                  style={{ fontSize: '0.75rem', justifyContent: 'space-between', padding: '0.4rem 0.6rem' }}
-                >
-                  <span>{acc.title}</span>
-                  <span className={`badge ${acc.role === 'ADMIN' ? 'badge-amber' : acc.role === 'DEVELOPER' ? 'badge-indigo' : 'badge-emerald'}`} style={{ fontSize: '0.65rem', padding: '1px 4px' }}>
-                    {acc.role}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Auth Actions on Mobile */}
           {!user ? (

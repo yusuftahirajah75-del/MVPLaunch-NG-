@@ -17,14 +17,22 @@ module.exports = {
   },
 
   PROJECT_STATUS: {
-    DRAFT: 'DRAFT',
-    PROPOSED: 'PROPOSED',
-    ACCEPTED: 'ACCEPTED',
+    PAYMENT_PENDING: 'PAYMENT_PENDING',
+    PAYMENT_VERIFIED: 'PAYMENT_VERIFIED',
+    AWAITING_PROJECT_SUBMISSION: 'AWAITING_PROJECT_SUBMISSION',
+    SUBMITTED: 'SUBMITTED',
+    ADMIN_SCOPING: 'ADMIN_SCOPING',
+    AWAITING_ENGINEER: 'AWAITING_ENGINEER',
+    ENGINEER_ASSIGNED: 'ENGINEER_ASSIGNED',
     IN_DEVELOPMENT: 'IN_DEVELOPMENT',
-    IN_REVIEW: 'IN_REVIEW',
+    INTERNAL_REVIEW: 'INTERNAL_REVIEW',
+    REVISION_REQUIRED: 'REVISION_REQUIRED',
+    APPROVED: 'APPROVED',
     DELIVERED: 'DELIVERED',
     COMPLETED: 'COMPLETED',
-    CANCELLED: 'CANCELLED'
+    CANCELLED: 'CANCELLED',
+    DRAFT: 'DRAFT',
+    ACCEPTED: 'ACCEPTED'
   },
 
   PROPOSAL_STATUS: {
@@ -73,7 +81,8 @@ module.exports = {
   TASK_PRIORITY: {
     LOW: 'LOW',
     MEDIUM: 'MEDIUM',
-    HIGH: 'HIGH'
+    HIGH: 'HIGH',
+    URGENT: 'URGENT'
   },
 
   FILE_CATEGORY: {
@@ -103,5 +112,57 @@ module.exports = {
     CANCELLED: 'CANCELLED'
   },
 
-  DEFAULT_CURRENCY: 'NGN'
+  DEFAULT_CURRENCY: 'NGN',
+
+  INDUSTRIES: [
+    'EdTech',
+    'FinTech',
+    'HealthTech',
+    'AgriTech',
+    'E-commerce',
+    'SaaS',
+    'Cybersecurity',
+    'AI / Machine Learning',
+    'AI Agents / Automation',
+    'Web3 / Blockchain',
+    'GovTech',
+    'LegalTech',
+    'PropTech / Real Estate',
+    'InsurTech',
+    'Logistics / Delivery',
+    'Transportation / Mobility',
+    'TravelTech',
+    'FoodTech',
+    'RetailTech',
+    'FashionTech',
+    'SportsTech',
+    'MediaTech',
+    'EntertainmentTech',
+    'Social / Community',
+    'HRTech / Recruitment',
+    'CareerTech',
+    'Creator Economy',
+    'MarketingTech',
+    'AdTech',
+    'ClimateTech / CleanTech',
+    'EnergyTech',
+    'ConstructionTech',
+    'ManufacturingTech',
+    'IndustrialTech',
+    'BeautyTech',
+    'FitnessTech',
+    'EventTech',
+    'HospitalityTech',
+    'Nonprofit / NGO',
+    'Religious / Community Services',
+    'Student / Campus Solutions',
+    'Productivity / Collaboration',
+    'Developer Tools',
+    'B2B / Enterprise',
+    'Marketplace',
+    'Booking / Reservation',
+    'FinOps / Accounting',
+    'Security / Trust & Verification',
+    'Other / Custom'
+  ]
 };

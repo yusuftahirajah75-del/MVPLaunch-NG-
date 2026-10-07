@@ -124,10 +124,21 @@ class ApiClient {
   // --- 4. Projects Module ---
   projects = {
     create: (body) => this.post('/projects', body),
+    submit: (body) => this.post('/projects/submit', body),
     list: (query = '') => this.get(`/projects${query}`),
     getById: (id) => this.get(`/projects/${id}`),
-    updateStatus: (id, body) => this.patch(`/projects/${id}/status`, body),
-    assignDeveloper: (id, developerId) => this.post(`/projects/${id}/assign`, { developerId })
+    getByCode: (code) => this.get(`/projects/track/${code}`),
+    updateScope: (id, body) => this.patch(`/projects/${id}/scope`, body),
+    assignEngineer: (id, body) => this.post(`/projects/${id}/assign-engineer`, body),
+    accept: (id) => this.post(`/projects/${id}/accept`, {}),
+    updateProgress: (id, body) => this.patch(`/projects/${id}/progress`, body),
+    submitDeliverable: (id, body) => this.post(`/projects/${id}/deliverables`, body),
+    reviewDeliverable: (deliverableId, body) => this.patch(`/projects/deliverables/${deliverableId}/review`, body),
+    markDelivered: (id, body) => this.post(`/projects/${id}/deliver`, body),
+    addNote: (id, body) => this.post(`/projects/${id}/notes`, body),
+    getNotes: (id) => this.get(`/projects/${id}/notes`),
+    listEngineers: () => this.get('/projects/meta/engineers'),
+    updateStatus: (id, body) => this.patch(`/projects/${id}/status`, body)
   };
 
   // --- 5. Proposals Module ---

@@ -1,6 +1,6 @@
 /**
  * MVPLaunch NG - Idempotent Demo Accounts Seeder
- * Ensures default pre-seeded test roles exist and have valid credentials.
+ * Ensures default internal test roles exist and have valid credentials.
  * Safe, idempotent, and non-destructive.
  */
 const db = require('../../config/db');
@@ -14,7 +14,7 @@ const DEMO_ACCOUNTS = [
     fullName: 'Emeka Okonkwo',
     phoneNumber: '+2348031234567',
     role: 'ADMIN',
-    bio: 'Lead Architect & MVPLaunch Director'
+    bio: 'Lead Architect & MVPLaunch Platform Director'
   },
   {
     email: 'developer@mvplaunch.ng',
@@ -22,7 +22,21 @@ const DEMO_ACCOUNTS = [
     fullName: 'Adebayo Olufemi',
     phoneNumber: '+2348029876543',
     role: 'DEVELOPER',
-    bio: 'Senior Full-Stack MVP Engineer (Node.js & React)'
+    bio: 'Senior Full-Stack MVP Engineer (Node.js, Express, React, PostgreSQL)',
+    skills: 'React, Node.js, Express, PostgreSQL, REST APIs, Paystack Integration, Tailwind/CSS',
+    availability_status: 'AVAILABLE',
+    specializations: JSON.stringify(['FinTech', 'E-commerce', 'SaaS', 'Marketplace', 'EdTech'])
+  },
+  {
+    email: 'engineer.fatima@mvplaunch.ng',
+    password: 'DevPass123!',
+    fullName: 'Fatima Danjuma',
+    phoneNumber: '+2348039887766',
+    role: 'DEVELOPER',
+    bio: 'Full-Stack & AI Systems Engineer (Python, FastAPI, React, Node.js)',
+    skills: 'Python, FastAPI, AI / Machine Learning, Node.js, React, Docker, Cloud Deployments',
+    availability_status: 'AVAILABLE',
+    specializations: JSON.stringify(['AI / Machine Learning', 'AI Agents / Automation', 'AgriTech', 'HealthTech', 'PropTech'])
   },
   {
     email: 'founder@quickretail.ng',
@@ -43,7 +57,7 @@ const DEMO_ACCOUNTS = [
 ];
 
 /**
- * Idempotently check and seed or repair demo accounts
+ * Idempotently check and seed or repair test accounts
  */
 async function ensureDemoUsers() {
   for (const acc of DEMO_ACCOUNTS) {
@@ -54,14 +68,24 @@ async function ensureDemoUsers() {
       );
 
       if (res.rows.length === 0) {
-        // Create missing demo user
+        // Create missing user
         const passwordHash = await hashPassword(acc.password);
         await db.query(
-          `INSERT INTO users (email, password_hash, full_name, phone_number, role, is_active, is_verified, bio)
-           VALUES (LOWER($1), $2, $3, $4, $5, true, true, $6)`,
-          [acc.email, passwordHash, acc.fullName, acc.phoneNumber, acc.role, acc.bio]
+          `INSERT INTO users (email, password_hash, full_name, phone_number, role, is_active, is_verified, bio, skills, availability_status, specializations)
+           VALUES (LOWER($1), $2, $3, $4, $5, true, true, $6, $7, $8, $9::jsonb)`,
+          [
+            acc.email,
+            passwordHash,
+            acc.fullName,
+            acc.phoneNumber,
+            acc.role,
+            acc.bio,
+            acc.skills || null,
+            acc.availability_status || 'AVAILABLE',
+            acc.specializations || '[]'
+          ]
         );
-        logger.info(`[DemoSeed] Created missing demo account: ${acc.email} (${acc.role})`);
+        logger.info(`[DemoSeed] Created missing test account: ${acc.email} (${acc.role})`);
       } else {
         const existing = res.rows[0];
         let isMatch = false;
@@ -71,17 +95,31 @@ async function ensureDemoUsers() {
           isMatch = false;
         }
 
-        if (!isMatch) {
-          const newHash = await hashPassword(acc.password);
-          await db.query(
-            `UPDATE users SET password_hash = $1, is_active = true WHERE id = $2`,
-            [newHash, existing.id]
-          );
-          logger.info(`[DemoSeed] Repaired password hash for demo account: ${acc.email}`);
-        }
+        const newHash = isMatch ? existing.password_hash : await hashPassword(acc.password);
+
+        await db.query(
+          `UPDATE users 
+           SET password_hash = $1, 
+               is_active = true, 
+               full_name = $2, 
+               bio = $3,
+               skills = COALESCE($4, skills),
+               availability_status = COALESCE($5, availability_status),
+               specializations = COALESCE($6::jsonb, specializations)
+           WHERE id = $7`,
+          [
+            newHash,
+            acc.fullName,
+            acc.bio,
+            acc.skills || null,
+            acc.availability_status || null,
+            acc.specializations || null,
+            existing.id
+          ]
+        );
       }
     } catch (err) {
-      logger.error(`[DemoSeed] Error verifying demo account ${acc.email}:`, err.message);
+      logger.error(`[DemoSeed] Error verifying test account ${acc.email}:`, err.message);
     }
   }
 }

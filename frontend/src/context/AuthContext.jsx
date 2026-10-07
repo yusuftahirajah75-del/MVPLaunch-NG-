@@ -3,37 +3,6 @@ import { api } from '../api/client';
 
 const AuthContext = createContext(null);
 
-export const DEMO_ACCOUNTS = [
-  {
-    role: 'CLIENT',
-    title: 'Startup Founder',
-    email: 'founder@quickretail.ng',
-    password: 'ClientPass123!',
-    tag: 'QuickRetail NG MVP'
-  },
-  {
-    role: 'CLIENT',
-    title: 'Student Builder',
-    email: 'student@unilag.edu.ng',
-    password: 'ClientPass123!',
-    tag: 'CampusBite Idea'
-  },
-  {
-    role: 'DEVELOPER',
-    title: 'Senior MVP Engineer',
-    email: 'developer@mvplaunch.ng',
-    password: 'DevPass123!',
-    tag: 'Adebayo Olufemi'
-  },
-  {
-    role: 'ADMIN',
-    title: 'Platform Director',
-    email: 'admin@mvplaunch.ng',
-    password: 'AdminPass123!',
-    tag: 'Emeka Okonkwo'
-  }
-];
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -90,10 +59,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const quickDemoLogin = async (account) => {
-    return login(account.email, account.password);
-  };
-
   const refreshUser = async () => {
     try {
       const res = await api.auth.me();
@@ -123,7 +88,6 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
-        quickDemoLogin,
         refreshUser,
         authModalOpen,
         setAuthModalOpen,
