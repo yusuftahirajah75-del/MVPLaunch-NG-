@@ -80,7 +80,7 @@ class PaymentsService {
   async initializePackagePayment({ packageId, customerName, customerEmail, customerPhone, notes, callbackUrl }, user = null, req = null) {
     const packageDetails = getPackageById(packageId);
     if (!packageDetails) {
-      throw ApiError.badRequest('Invalid package selected. Must be student-starter, mvp-starter, or business-launch.');
+      throw ApiError.badRequest('Invalid package selected. Must be idea-validation, student-project, founder-mvp, or business-digital.');
     }
 
     // Resolve or automatically create client user account

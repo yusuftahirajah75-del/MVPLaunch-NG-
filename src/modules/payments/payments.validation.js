@@ -12,8 +12,17 @@ const initializePaymentSchema = z.object({
 
 const initializePackagePaymentSchema = z.object({
   packageId: z.string().transform((v) => (v ? v.toLowerCase().replace(/_/g, '-') : v)).pipe(
-    z.enum(['student-starter', 'mvp-starter', 'business-launch'], {
-      errorMap: () => ({ message: 'Invalid package identifier. Must be student-starter, mvp-starter, or business-launch' })
+    z.enum([
+      'idea-validation',
+      'student-project',
+      'founder-mvp',
+      'business-digital',
+      // Backward compatibility aliases
+      'student-starter',
+      'mvp-starter',
+      'business-launch'
+    ], {
+      errorMap: () => ({ message: 'Invalid package identifier. Must be idea-validation, student-project, founder-mvp, or business-digital' })
     })
   ),
   customerName: z.string().min(2, 'Customer full name must be at least 2 characters').max(150),

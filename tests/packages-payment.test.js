@@ -39,51 +39,69 @@ describe('Packages and Paystack Payment Integration', () => {
   });
 
   describe('1. Package Catalog API (GET /api/v1/packages)', () => {
-    it('should return all three packages with accurate naira prices and configurations', async () => {
+    it('should return all four customer-focused packages with accurate naira prices and configurations', async () => {
       const res = await request(app).get('/api/v1/packages');
 
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
       expect(Array.isArray(res.body.data.packages)).toBe(true);
-      expect(res.body.data.packages.length).toBe(3);
+      expect(res.body.data.packages.length).toBe(4);
 
       const packages = res.body.data.packages;
-      const studentPkg = packages.find(p => p.id === 'student-starter');
-      const mvpPkg = packages.find(p => p.id === 'mvp-starter');
-      const businessPkg = packages.find(p => p.id === 'business-launch');
+      const ideaPkg = packages.find(p => p.id === 'idea-validation');
+      const studentPkg = packages.find(p => p.id === 'student-project');
+      const founderPkg = packages.find(p => p.id === 'founder-mvp');
+      const businessPkg = packages.find(p => p.id === 'business-digital');
 
-      // Assert Student Starter
+      // Assert Idea Validation Starter (₦15,000)
+      expect(ideaPkg).toBeDefined();
+      expect(ideaPkg.name).toBe('Idea Validation Starter');
+      expect(ideaPkg.priceNgn).toBe(15000);
+      expect(ideaPkg.priceKobo).toBe(1500000);
+      expect(ideaPkg.features.length).toBeGreaterThanOrEqual(4);
+      expect(ideaPkg.exclusions.length).toBeGreaterThan(0);
+
+      // Assert Student Project Launch (₦20,000)
       expect(studentPkg).toBeDefined();
-      expect(studentPkg.priceNgn).toBe(5000);
-      expect(studentPkg.priceKobo).toBe(500000);
+      expect(studentPkg.name).toBe('Student Project Launch');
+      expect(studentPkg.priceNgn).toBe(20000);
+      expect(studentPkg.priceKobo).toBe(2000000);
       expect(studentPkg.targetAudience).toContain('students');
       expect(studentPkg.features.length).toBeGreaterThan(0);
       expect(studentPkg.exclusions.length).toBeGreaterThan(0);
 
-      // Assert MVP Starter
-      expect(mvpPkg).toBeDefined();
-      expect(mvpPkg.priceNgn).toBe(15000);
-      expect(mvpPkg.priceKobo).toBe(1500000);
-      expect(mvpPkg.targetAudience).toContain('founders');
+      // Assert Founder MVP Launch (₦35,000)
+      expect(founderPkg).toBeDefined();
+      expect(founderPkg.name).toBe('Founder MVP Launch');
+      expect(founderPkg.priceNgn).toBe(35000);
+      expect(founderPkg.priceKobo).toBe(3500000);
+      expect(founderPkg.popular).toBe(true);
+      expect(founderPkg.targetAudience).toContain('founders');
 
-      // Assert Business Launch
+      // Assert Business Digital Launch (₦50,000)
       expect(businessPkg).toBeDefined();
-      expect(businessPkg.priceNgn).toBe(35000);
-      expect(businessPkg.priceKobo).toBe(3500000);
-      expect(businessPkg.targetAudience).toContain('businesses');
+      expect(businessPkg.name).toBe('Business Digital Launch');
+      expect(businessPkg.priceNgn).toBe(50000);
+      expect(businessPkg.priceKobo).toBe(5000000);
+      expect(businessPkg.targetAudience).toContain('SMEs');
     });
 
-    it('should return a specific package by ID (supporting both hyphens and underscores)', async () => {
-      const res = await request(app).get('/api/v1/packages/mvp-starter');
-
+    it('should return a specific package by ID (supporting both hyphens, underscores, and aliases)', async () => {
+      const res = await request(app).get('/api/v1/packages/idea-validation');
       expect(res.statusCode).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.package.id).toBe('mvp-starter');
+      expect(res.body.data.package.id).toBe('idea-validation');
       expect(res.body.data.package.priceNgn).toBe(15000);
 
-      const res2 = await request(app).get('/api/v1/packages/MVP_STARTER');
+      const res2 = await request(app).get('/api/v1/packages/FOUNDER_MVP');
       expect(res2.statusCode).toBe(200);
-      expect(res2.body.data.package.id).toBe('mvp-starter');
+      expect(res2.body.data.package.id).toBe('founder-mvp');
+      expect(res2.body.data.package.priceNgn).toBe(35000);
+
+      // Legacy alias check
+      const res3 = await request(app).get('/api/v1/packages/mvp-starter');
+      expect(res3.statusCode).toBe(200);
+      expect(res3.body.data.package.id).toBe('founder-mvp');
     });
 
     it('should return 404 for an invalid package ID', async () => {
@@ -112,7 +130,7 @@ describe('Packages and Paystack Payment Integration', () => {
       const res = await request(app)
         .post('/api/v1/payments/initialize-package')
         .send({
-          packageId: 'student-starter',
+          packageId: 'idea-validation',
           customerName: 'Chidi Okonkwo',
           customerEmail: 'not-a-valid-email'
         });
@@ -121,15 +139,15 @@ describe('Packages and Paystack Payment Integration', () => {
       expect(res.body.success).toBe(false);
     });
 
-    it('should initialize Student Starter (₦5,000) and ignore client-tampered price', async () => {
+    it('should initialize Idea Validation Starter (₦15,000) and ignore client-tampered price', async () => {
       const res = await request(app)
         .post('/api/v1/payments/initialize-package')
         .send({
-          packageId: 'STUDENT_STARTER',
+          packageId: 'idea-validation',
           customerName: 'Amina Bello',
-          customerEmail: 'amina.student@unilag.edu.ng',
+          customerEmail: 'amina.bello@idea.ng',
           customerPhone: '08012345678',
-          notes: 'Portfolio for final year project',
+          notes: 'Fintech idea validation for Nigerian unbanked',
           // Malicious client tries to send tampered price of 1 naira:
           amount: 1,
           priceNgn: 1,
@@ -142,24 +160,24 @@ describe('Packages and Paystack Payment Integration', () => {
       expect(res.body.data).toHaveProperty('reference');
       expect(res.body.data).toHaveProperty('orderId');
 
-      // Server must enforce trusted price of 5,000 NGN
-      expect(res.body.data.amountNgn).toBe(5000);
-      expect(res.body.data.amountKobo).toBe(500000);
+      // Server must enforce trusted price of 15,000 NGN
+      expect(res.body.data.amountNgn).toBe(15000);
+      expect(res.body.data.amountKobo).toBe(1500000);
       expect(res.body.data.currency).toBe('NGN');
 
-      // Check order in DB to confirm price in database is 5000
+      // Check order in DB to confirm price in database is 15000
       const orderRes = await db.query('SELECT * FROM orders WHERE id = $1', [res.body.data.orderId]);
       expect(orderRes.rows.length).toBe(1);
-      expect(Number(orderRes.rows[0].total_amount_ngn)).toBe(5000);
+      expect(Number(orderRes.rows[0].total_amount_ngn)).toBe(15000);
       expect(orderRes.rows[0].payment_status).toBe('PENDING');
-      expect(orderRes.rows[0].package_id).toBe('student-starter');
+      expect(orderRes.rows[0].package_id).toBe('idea-validation');
     });
 
-    it('should initialize Business Launch package (₦35,000) successfully', async () => {
+    it('should initialize Business Digital Launch package (₦50,000) successfully', async () => {
       const res = await request(app)
         .post('/api/v1/payments/initialize-package')
         .send({
-          packageId: 'business-launch',
+          packageId: 'business-digital',
           customerName: 'Emeka Nwosu',
           customerEmail: 'emeka@ventures.ng',
           customerPhone: '08098765432',
@@ -167,8 +185,8 @@ describe('Packages and Paystack Payment Integration', () => {
         });
 
       expect(res.statusCode).toBe(201);
-      expect(res.body.data.amountNgn).toBe(35000);
-      expect(res.body.data.amountKobo).toBe(3500000);
+      expect(res.body.data.amountNgn).toBe(50000);
+      expect(res.body.data.amountKobo).toBe(5000000);
       expect(res.body.data.reference).toMatch(/^mvp_pkg_/);
     });
   });
@@ -181,7 +199,7 @@ describe('Packages and Paystack Payment Integration', () => {
       const initRes = await request(app)
         .post('/api/v1/payments/initialize-package')
         .send({
-          packageId: 'mvp-starter',
+          packageId: 'founder-mvp',
           customerName: 'Tunde Bakare',
           customerEmail: 'tunde@bakaretech.ng',
           customerPhone: '08123456789',
@@ -206,7 +224,7 @@ describe('Packages and Paystack Payment Integration', () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.reference).toBe(testReference);
       expect(res.body.data.status).toBe('PAID');
-      expect(res.body.data.amountNgn).toBe(15000);
+      expect(res.body.data.amountNgn).toBe(35000);
       expect(res.body.data.currency).toBe('NGN');
 
       // Verify database state directly
@@ -250,7 +268,7 @@ describe('Packages and Paystack Payment Integration', () => {
       const initRes = await request(app)
         .post('/api/v1/payments/initialize-package')
         .send({
-          packageId: 'student-starter',
+          packageId: 'student-project',
           customerName: 'Fatima Sanusi',
           customerEmail: 'fatima@student.ng'
         });
@@ -265,7 +283,7 @@ describe('Packages and Paystack Payment Integration', () => {
         data: {
           id: testEventId,
           reference: webhookRef,
-          amount: 500000, // 5,000 NGN in kobo
+          amount: 2000000, // 20,000 NGN in kobo
           currency: 'NGN',
           status: 'success',
           channel: 'card',
@@ -346,7 +364,7 @@ describe('Packages and Paystack Payment Integration', () => {
       const initRes = await request(app)
         .post('/api/v1/payments/initialize-package')
         .send({
-          packageId: 'mvp-starter',
+          packageId: 'founder-mvp',
           customerName: 'Kola Ojo',
           customerEmail: 'kola@ojo.ng'
         });

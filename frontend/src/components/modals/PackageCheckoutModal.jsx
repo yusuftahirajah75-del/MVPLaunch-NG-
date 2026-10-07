@@ -269,8 +269,12 @@ export default function PackageCheckoutModal({ packageData, isOpen, onClose }) {
             <div style={{ fontWeight: 700, color: '#e2e8f0', marginBottom: '0.3rem' }}>Package Scope Summary:</div>
             <ul style={{ paddingLeft: '1.1rem', margin: 0, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
               <li><strong>Deliverable:</strong> {packageData.deliverable}</li>
-              <li><strong>Included:</strong> Mobile responsive layout, deployment support, contact integration.</li>
-              <li><strong>Exclusions:</strong> Custom domains, paid hosting, and third-party SaaS subscriptions are not included and billed directly by providers.</li>
+              {Array.isArray(packageData.features) && packageData.features.slice(0, 2).map((feat, fIdx) => (
+                <li key={`f-${fIdx}`}><strong>Included:</strong> {feat}</li>
+              ))}
+              {Array.isArray(packageData.exclusions) && packageData.exclusions.slice(0, 2).map((excl, eIdx) => (
+                <li key={`e-${eIdx}`} style={{ color: '#fca5a5' }}><strong>Exclusion:</strong> {excl}</li>
+              ))}
             </ul>
           </div>
 

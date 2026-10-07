@@ -287,7 +287,7 @@ export default function Navbar({ onNavigatePortal }) {
               onClick={closeMobile}
               style={{ padding: '0.5rem 0.75rem', borderRadius: '6px', fontSize: '0.95rem', fontWeight: 600, color: 'var(--accent-emerald-light)' }}
             >
-              Launch Packages (₦5k – ₦35k)
+              Launch Packages (₦15k – ₦50k)
             </a>
             <a
               href="#why-us"
