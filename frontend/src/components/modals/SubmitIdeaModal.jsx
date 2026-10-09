@@ -24,7 +24,7 @@ export const INDUSTRIES_LIST = [
 ];
 
 export default function SubmitIdeaModal({ onIdeaSubmitted, initialOrderId = null, initialPaymentRef = null }) {
-  const { ideaModalOpen, setIdeaModalOpen, user, openLogin } = useAuth();
+  const { ideaModalOpen, setIdeaModalOpen, user, openLogin, selectedPackage, setSelectedPackage } = useAuth();
 
   // Paid orders tracking
   const [paidOrders, setPaidOrders] = useState([]);
@@ -32,6 +32,13 @@ export default function SubmitIdeaModal({ onIdeaSubmitted, initialOrderId = null
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
   const [packageForCheckout, setPackageForCheckout] = useState(null);
+
+  // Sync selected package from AuthContext if available
+  useEffect(() => {
+    if (selectedPackage && !packageForCheckout) {
+      setPackageForCheckout(selectedPackage);
+    }
+  }, [selectedPackage]);
 
   // Form Fields
   const [title, setTitle] = useState('');
@@ -76,7 +83,7 @@ export default function SubmitIdeaModal({ onIdeaSubmitted, initialOrderId = null
     try {
       setOrdersLoading(true);
       const res = await api.orders.list('?limit=20');
-      const orders = res?.data?.orders || [];
+      const orders = Array.isArray(res?.data) ? res.data : (res?.data?.orders || res?.orders || []);
       // Filter orders that are verified/paid
       const verified = orders.filter(o => o.payment_status === 'PAID');
       setPaidOrders(verified);
@@ -102,7 +109,12 @@ export default function SubmitIdeaModal({ onIdeaSubmitted, initialOrderId = null
   if (!ideaModalOpen) return null;
 
   const handleSelectPackageForPayment = (pkg) => {
+    if (setSelectedPackage) setSelectedPackage(pkg);
     setPackageForCheckout(pkg);
+    if (!user) {
+      openLogin('start-mvp');
+      return;
+    }
     setCheckoutModalOpen(true);
   };
 
@@ -116,7 +128,7 @@ export default function SubmitIdeaModal({ onIdeaSubmitted, initialOrderId = null
 
     if (!user) {
       setError('Please sign in or create an account to submit your project.');
-      openLogin();
+      openLogin('start-mvp');
       return;
     }
 
@@ -290,36 +302,72 @@ export default function SubmitIdeaModal({ onIdeaSubmitted, initialOrderId = null
                 <ArrowRight size={16} />
               </button>
             </div>
-          ) : (
-            <div>
-              {/* Not Authenticated Warning */}
-              {!user && (
-                <div style={{
-                  background: 'rgba(99, 102, 241, 0.08)',
+          ) : !user ? (
+            /* Account Required Intermediate Step for Unauthenticated Visitors */
+            <div style={{ textAlign: 'center', padding: '1.5rem 0.5rem' }}>
+              <div
+                style={{
+                  background: 'linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%)',
                   border: '1px solid rgba(99, 102, 241, 0.25)',
-                  borderRadius: 'var(--radius-md)',
-                  padding: '1.25rem',
-                  marginBottom: '1.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '1rem',
-                  flexWrap: 'wrap'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <Lock size={20} color="#818cf8" />
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fff' }}>Account Required to Start Project</div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Sign in or register to secure your verified payment and project deliverables.</div>
-                    </div>
-                  </div>
-                  <button onClick={openLogin} className="btn btn-primary btn-sm">
-                    Sign In / Register
+                  borderRadius: 'var(--radius-xl)',
+                  padding: 'clamp(1.75rem, 5vw, 2.5rem) 1.5rem',
+                  maxWidth: '520px',
+                  margin: '0 auto',
+                  boxShadow: '0 12px 35px rgba(0, 0, 0, 0.35)'
+                }}
+              >
+                <div
+                  style={{
+                    width: '60px',
+                    height: '60px',
+                    borderRadius: '16px',
+                    background: 'rgba(99, 102, 241, 0.15)',
+                    border: '1px solid rgba(99, 102, 241, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 1.25rem',
+                    boxShadow: '0 0 24px rgba(99, 102, 241, 0.25)'
+                  }}
+                >
+                  <Lock size={30} color="#818cf8" strokeWidth={2.2} />
+                </div>
+                <h4 style={{ fontWeight: 800, fontSize: '1.35rem', color: '#fff', margin: '0 0 0.5rem 0' }}>
+                  Account Required to Start Project
+                </h4>
+                <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', margin: '0 auto 1.75rem', maxWidth: '400px', lineHeight: 1.5 }}>
+                  Sign in or register to secure your verified payment and project deliverables.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '320px', margin: '0 auto' }}>
+                  <button
+                    id="start-mvp-auth-trigger-btn"
+                    onClick={() => openLogin('start-mvp')}
+                    className="btn btn-primary btn-lg"
+                    style={{
+                      justifyContent: 'center',
+                      padding: '0.85rem 1.5rem',
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      boxShadow: '0 4px 18px rgba(16, 185, 129, 0.35)'
+                    }}
+                  >
+                    <span>Sign In / Register</span>
+                    <ArrowRight size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIdeaModalOpen(false)}
+                    className="btn btn-ghost btn-sm"
+                    style={{ justifyContent: 'center', color: 'var(--text-muted)' }}
+                  >
+                    Cancel
                   </button>
                 </div>
-              )}
-
-              {/* STEP 1: PAYMENT ENFORCEMENT & VERIFICATION */}
+              </div>
+            </div>
+          ) : (
+            <div>
+              {/* STEP 1: PAYMENT ENFORCEMENT & VERIFICATION (Authenticated users without paid orders) */}
               {user && paidOrders.length === 0 && !ordersLoading && (
                 <div style={{
                   background: 'rgba(245, 158, 11, 0.07)',

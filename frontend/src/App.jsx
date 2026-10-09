@@ -20,12 +20,17 @@ import AdminPortal from './components/portal/AdminPortal';
 import PaymentCallback from './components/portal/PaymentCallback';
 
 export default function App() {
-  const { user } = useAuth();
+  const { user, authOrigin, ideaModalOpen } = useAuth();
   const [currentView, setCurrentView] = useState('landing'); // 'landing' | 'client' | 'developer' | 'admin' | 'payment-callback'
 
-  // When a user logs in, automatically navigate to their portal (unless viewing payment callback)
+  // When a user logs in, automatically navigate to their portal (unless viewing payment callback or continuing Start MVP flow)
   useEffect(() => {
     if (currentView === 'payment-callback') return;
+
+    // If authenticating from Start MVP or in project submission flow, preserve current view on landing
+    if (authOrigin === 'start-mvp' || ideaModalOpen) {
+      return;
+    }
 
     if (user && user.role) {
       const targetView = user.role.toLowerCase();
@@ -35,7 +40,7 @@ export default function App() {
       setCurrentView('landing');
       window.location.hash = '';
     }
-  }, [user]);
+  }, [user, authOrigin, ideaModalOpen]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

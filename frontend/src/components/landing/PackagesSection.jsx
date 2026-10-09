@@ -124,12 +124,13 @@ export const LAUNCH_PACKAGES = [
 ];
 
 export default function PackagesSection() {
-  const { setIdeaModalOpen } = useAuth();
+  const { setIdeaModalOpen, setSelectedPackage: setContextSelectedPackage } = useAuth();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
 
   const handleSelectPackage = (pkg) => {
     setSelectedPackage(pkg);
+    if (setContextSelectedPackage) setContextSelectedPackage(pkg);
     setCheckoutModalOpen(true);
   };
 

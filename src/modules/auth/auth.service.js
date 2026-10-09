@@ -7,11 +7,32 @@ const { signToken } = require('../../utils/token');
 const ApiError = require('../../utils/apiError');
 const { recordAuditLog } = require('../../middleware/auditLogger.middleware');
 
+function formatUser(user) {
+  if (!user) return null;
+  return {
+    id: user.id,
+    email: user.email,
+    fullName: user.full_name || user.fullName,
+    full_name: user.full_name || user.fullName,
+    phoneNumber: user.phone_number || user.phoneNumber || null,
+    phone_number: user.phone_number || user.phoneNumber || null,
+    role: user.role,
+    avatarUrl: user.avatar_url || user.avatarUrl || null,
+    bio: user.bio || null,
+    isActive: user.is_active ?? user.isActive ?? true,
+    is_active: user.is_active ?? user.isActive ?? true,
+    isVerified: user.is_verified ?? user.isVerified ?? false,
+    is_verified: user.is_verified ?? user.isVerified ?? false,
+    createdAt: user.created_at || user.createdAt,
+    created_at: user.created_at || user.createdAt
+  };
+}
+
 class AuthService {
   async register({ email, password, fullName, phoneNumber, role }, req) {
     const existing = await authRepo.findByEmail(email);
     if (existing) {
-      throw ApiError.conflict('An account with this email address already exists.');
+      throw ApiError.conflict('An account with this email address already exists. Please sign in instead.');
     }
 
     const passwordHash = await hashPassword(password);
@@ -19,8 +40,8 @@ class AuthService {
       email,
       passwordHash,
       fullName,
-      phoneNumber,
-      role
+      phoneNumber: phoneNumber || null,
+      role: role || 'CLIENT'
     });
 
     const token = signToken({ id: user.id, email: user.email, role: user.role });
@@ -34,7 +55,7 @@ class AuthService {
       details: { email: user.email, role: user.role }
     });
 
-    return { user, token };
+    return { user: formatUser(user), token };
   }
 
   async login({ email, password }, req) {
@@ -54,19 +75,6 @@ class AuthService {
 
     const token = signToken({ id: user.id, email: user.email, role: user.role });
 
-    const safeUser = {
-      id: user.id,
-      email: user.email,
-      fullName: user.full_name,
-      phoneNumber: user.phone_number,
-      role: user.role,
-      avatarUrl: user.avatar_url,
-      bio: user.bio,
-      isActive: user.is_active,
-      isVerified: user.is_verified,
-      createdAt: user.created_at
-    };
-
     await recordAuditLog({
       userId: user.id,
       action: 'USER_LOGGED_IN',
@@ -75,7 +83,7 @@ class AuthService {
       req
     });
 
-    return { user: safeUser, token };
+    return { user: formatUser(user), token };
   }
 
   async changePassword(userId, { currentPassword, newPassword }, req) {
@@ -108,7 +116,7 @@ class AuthService {
     if (!user) {
       throw ApiError.notFound('User not found.');
     }
-    return user;
+    return formatUser(user);
   }
 }
 

@@ -28,7 +28,7 @@ const authLimiter = rateLimit({
   max: env.AUTH_RATE_LIMIT_MAX,
   standardHeaders: true,
   legacyHeaders: false,
-  skip: () => env.NODE_ENV === 'test',
+  skip: () => env.NODE_ENV === 'test' || process.env.SKIP_RATE_LIMIT === 'true',
   handler: (req, res) => {
     return ApiResponse.error(
       res,

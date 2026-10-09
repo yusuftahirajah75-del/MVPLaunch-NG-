@@ -27,7 +27,10 @@ function validate(schemaObj) {
           field: err.path.join('.'),
           message: err.message
         }));
-        return next(new ApiError(422, 'Validation error: invalid request payload', errors));
+        const summaryMessage = errors.length > 0
+          ? `Validation error: ${errors.map((e) => e.message).join('. ')}`
+          : 'Validation error: invalid request payload';
+        return next(new ApiError(422, summaryMessage, errors));
       }
       next(error);
     }

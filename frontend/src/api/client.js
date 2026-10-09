@@ -50,6 +50,12 @@ class ApiClient {
 
       if (!res.ok || (isJson && data.success === false)) {
         let errorMsg = data?.message;
+        if (Array.isArray(data?.errors) && data.errors.length > 0) {
+          const detailMessages = data.errors.map((e) => e.message).filter(Boolean);
+          if (detailMessages.length > 0) {
+            errorMsg = detailMessages.join('. ');
+          }
+        }
         if (!errorMsg) {
           if (res.status === 500 && (!isJson || !data)) {
             errorMsg = 'Backend API server is unreachable on port 5005. Please make sure the backend server is running.';

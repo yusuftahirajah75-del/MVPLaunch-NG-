@@ -62,7 +62,7 @@ export default function ClientPortal({ onBackToLanding }) {
       ]);
 
       const projList = pRes?.data?.projects || pRes?.data || [];
-      const ordList = oRes?.data?.orders || [];
+      const ordList = Array.isArray(oRes?.data) ? oRes.data : (oRes?.data?.orders || oRes?.orders || []);
 
       setProjects(projList);
       setOrders(ordList);
