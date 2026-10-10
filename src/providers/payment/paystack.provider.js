@@ -27,7 +27,7 @@ class PaystackProvider extends PaymentProvider {
   _request(method, endpoint, data = null, timeoutMs = 25000) {
     return new Promise((resolve, reject) => {
       // Configuration validation
-      if (!this.secretKey || (this.secretKey.startsWith('sk_test_mock_') && env.NODE_ENV === 'production')) {
+      if (!this.secretKey || ((this.secretKey.startsWith('sk_test_mock_') || this.secretKey.includes('placeholder')) && (env.NODE_ENV === 'production' || process.env.RENDER === 'true'))) {
         return reject(
           ApiError.internal(
             'Paystack Secret Key is missing or invalid in server environment. Please configure PAYSTACK_SECRET_KEY in production.'

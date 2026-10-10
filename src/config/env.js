@@ -3,13 +3,21 @@
  */
 require('dotenv').config();
 
+const isRender = process.env.RENDER === 'true' || Boolean(process.env.RENDER_EXTERNAL_URL) || Boolean(process.env.RENDER_SERVICE_ID);
+const isProduction = process.env.NODE_ENV === 'production' || isRender;
+const isLiveKey = (process.env.PAYSTACK_SECRET_KEY || '').trim().startsWith('sk_live_');
+
 const env = {
   PORT: parseInt(process.env.PORT || '5000', 10),
-  NODE_ENV: process.env.NODE_ENV || 'development',
+  NODE_ENV: process.env.NODE_ENV || (isRender ? 'production' : 'development'),
   API_PREFIX: process.env.API_PREFIX || '/api/v1',
   APP_NAME: process.env.APP_NAME || 'MVPLaunch NG',
-  APP_URL: process.env.APP_URL || (process.env.NODE_ENV === 'production' ? 'https://mvplaunch-ng.onrender.com' : 'http://localhost:5000'),
-  FRONTEND_URL: process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://mvplaunch-ng.onrender.com' : 'http://localhost:3000'),
+  APP_URL: isProduction
+    ? (process.env.APP_URL && !process.env.APP_URL.includes('localhost') ? process.env.APP_URL : 'https://mvplaunch-ng.onrender.com')
+    : (process.env.APP_URL || 'http://localhost:5000'),
+  FRONTEND_URL: isProduction
+    ? (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes('localhost') ? process.env.FRONTEND_URL : 'https://mvplaunch-ng.onrender.com')
+    : (process.env.FRONTEND_URL || 'http://localhost:3000'),
 
   // Database
   DATABASE_URL: process.env.DATABASE_URL,
@@ -27,8 +35,8 @@ const env = {
   JWT_SECRET: process.env.JWT_SECRET || 'mvplaunch_fallback_development_secret_key_2026',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
   JWT_COOKIE_NAME: process.env.JWT_COOKIE_NAME || 'mvplaunch_token',
-  COOKIE_SECURE: process.env.COOKIE_SECURE === 'true' || process.env.NODE_ENV === 'production',
-  COOKIE_SAME_SITE: process.env.COOKIE_SAME_SITE || (process.env.NODE_ENV === 'production' ? 'none' : 'lax'),
+  COOKIE_SECURE: process.env.COOKIE_SECURE === 'true' || isProduction,
+  COOKIE_SAME_SITE: process.env.COOKIE_SAME_SITE || (isProduction ? 'none' : 'lax'),
 
   // Rate Limiter
   RATE_LIMIT_WINDOW_MS: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
@@ -52,9 +60,9 @@ const env = {
   PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY || '',
   PAYSTACK_BASE_URL: process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co',
   // Strict Mock Mode Isolation:
-  // Production NEVER permits mock mode under any circumstances.
-  // In development: Only allowed if explicitly requested via PAYSTACK_MOCK_MODE === 'true'.
-  PAYSTACK_MOCK_MODE: process.env.NODE_ENV === 'production'
+  // Disabled unconditionally if running in production, running on Render, or configured with a live Paystack key.
+  // In development: Only allowed if explicitly requested via PAYSTACK_MOCK_MODE === 'true' AND NOT using a live key.
+  PAYSTACK_MOCK_MODE: (isProduction || isLiveKey)
     ? false
     : process.env.PAYSTACK_MOCK_MODE === 'true',
 
