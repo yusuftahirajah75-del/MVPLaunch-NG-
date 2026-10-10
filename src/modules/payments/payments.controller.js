@@ -55,6 +55,9 @@ class PaymentsController {
 
   async mockCheckout(req, res, next) {
     try {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(404).send('Mock payment checkout simulator is disabled in production.');
+      }
       const { reference } = req.query;
       return res.send(`
         <!DOCTYPE html>

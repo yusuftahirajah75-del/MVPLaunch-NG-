@@ -8,8 +8,8 @@ const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   API_PREFIX: process.env.API_PREFIX || '/api/v1',
   APP_NAME: process.env.APP_NAME || 'MVPLaunch NG',
-  APP_URL: process.env.APP_URL || 'http://localhost:5000',
-  FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:3000',
+  APP_URL: process.env.APP_URL || (process.env.NODE_ENV === 'production' ? 'https://mvplaunch-ng.onrender.com' : 'http://localhost:5000'),
+  FRONTEND_URL: process.env.FRONTEND_URL || (process.env.NODE_ENV === 'production' ? 'https://mvplaunch-ng.onrender.com' : 'http://localhost:3000'),
 
   // Database
   DATABASE_URL: process.env.DATABASE_URL,
@@ -46,11 +46,17 @@ const env = {
         'http://localhost:5005'
       ],
 
-  // Paystack
-  PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || 'sk_test_mock_secret_key',
-  PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY || 'pk_test_mock_public_key',
+  // Payment Provider & Paystack
+  PAYMENT_PROVIDER: process.env.PAYMENT_PROVIDER || 'paystack',
+  PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || '',
+  PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY || '',
   PAYSTACK_BASE_URL: process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co',
-  PAYSTACK_MOCK_MODE: process.env.PAYSTACK_MOCK_MODE !== 'false',
+  // Strict Mock Mode Isolation:
+  // Production NEVER permits mock mode under any circumstances.
+  // In development: Only allowed if explicitly requested via PAYSTACK_MOCK_MODE === 'true'.
+  PAYSTACK_MOCK_MODE: process.env.NODE_ENV === 'production'
+    ? false
+    : process.env.PAYSTACK_MOCK_MODE === 'true',
 
   // Storage
   STORAGE_PROVIDER: process.env.STORAGE_PROVIDER || 'local',

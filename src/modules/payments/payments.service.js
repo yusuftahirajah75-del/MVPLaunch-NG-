@@ -31,7 +31,13 @@ class PaymentsService {
     }
 
     const reference = `mvp_pay_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-    const effectiveCallback = callbackUrl || `${env.FRONTEND_URL}/payments/callback?reference=${reference}`;
+    const origin = req ? (req.get('origin') || `${req.protocol}://${req.get('host')}`) : env.FRONTEND_URL;
+    let effectiveCallback = callbackUrl;
+    if (!effectiveCallback) {
+      effectiveCallback = `${origin}/payments/callback?reference=${reference}`;
+    } else if (effectiveCallback.startsWith('/')) {
+      effectiveCallback = `${origin}${effectiveCallback}`;
+    }
 
     const paystackRes = await paystackProvider.initializeTransaction({
       email: user.email,
@@ -128,7 +134,13 @@ class PaymentsService {
 
     // 2. Generate unique, unpredictable reference
     const reference = `mvp_pkg_${packageDetails.id.replace(/-/g, '_')}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}`;
-    const effectiveCallback = callbackUrl || `${env.FRONTEND_URL}/payments/callback?reference=${reference}`;
+    const origin = req ? (req.get('origin') || `${req.protocol}://${req.get('host')}`) : env.FRONTEND_URL;
+    let effectiveCallback = callbackUrl;
+    if (!effectiveCallback) {
+      effectiveCallback = `${origin}/payments/callback?reference=${reference}`;
+    } else if (effectiveCallback.startsWith('/')) {
+      effectiveCallback = `${origin}${effectiveCallback}`;
+    }
 
     // 3. Initialize transaction with Paystack using exact trusted amount
     const paystackRes = await paystackProvider.initializeTransaction({

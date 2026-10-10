@@ -16,8 +16,10 @@ const router = Router();
 // 1. Webhook endpoint (Public, called by Paystack servers with HMAC SHA512 signature)
 router.post('/webhook', paymentsController.webhook);
 
-// 2. Mock Checkout UI (Development only)
-router.get('/mock-checkout', paymentsController.mockCheckout);
+// 2. Mock Checkout UI (Isolated to non-production development with mock mode enabled)
+if (process.env.NODE_ENV !== 'production') {
+  router.get('/mock-checkout', paymentsController.mockCheckout);
+}
 
 // 3. Package Checkout initialization (Public / Optional Auth for visitors or logged in clients)
 router.post(
