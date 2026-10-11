@@ -78,10 +78,35 @@ try {
 
 const fs = require('fs');
 
-// 6. Root route
+// Cache dist directory status once at startup instead of blocking fs calls on every request
+const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
+const hasFrontend = fs.existsSync(frontendDistPath) && env.NODE_ENV !== 'test';
+
+// 6. Fast Static Assets & Caching (mounted early with 1-year immutable cache for hashed bundles)
+if (hasFrontend) {
+  app.use(
+    express.static(frontendDistPath, {
+      maxAge: '1y',
+      immutable: true,
+      index: false,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+        }
+      }
+    })
+  );
+}
+
+// 7. Instant Health Check (Root /health for ping monitors & Render)
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', service: env.APP_NAME, uptime: `${Math.floor(process.uptime())}s` });
+});
+
+// 8. Root route - Serve Landing Page immediately without redirects or delays
 app.get('/', (req, res, next) => {
-  const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
-  if (fs.existsSync(frontendDistPath) && env.NODE_ENV !== 'test' && !req.xhr && req.accepts('html')) {
+  if (hasFrontend && !req.xhr && req.accepts('html')) {
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     return res.sendFile(path.join(frontendDistPath, 'index.html'));
   }
   res.json({
@@ -93,16 +118,14 @@ app.get('/', (req, res, next) => {
   });
 });
 
-// 7. Rate Limiter on API routes
+// 9. Rate Limiter on API routes
 app.use(env.API_PREFIX, apiLimiter);
 
-// 8. Mount Master API Router
+// 10. Mount Master API Router
 app.use(env.API_PREFIX, apiRouter);
 
-// 9. Static Frontend SPA fallback (Production / Render single service)
-const frontendDistPath = path.resolve(__dirname, '../frontend/dist');
-if (fs.existsSync(frontendDistPath) && env.NODE_ENV !== 'test') {
-  app.use(express.static(frontendDistPath));
+// 11. Static Frontend SPA fallback for client-side routing
+if (hasFrontend) {
   app.get('*', (req, res, next) => {
     if (
       req.path.startsWith(env.API_PREFIX) ||
@@ -111,6 +134,7 @@ if (fs.existsSync(frontendDistPath) && env.NODE_ENV !== 'test') {
     ) {
       return next();
     }
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.sendFile(path.join(frontendDistPath, 'index.html'));
   });
 }
