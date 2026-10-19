@@ -13,14 +13,27 @@ const ApiError = require('../../utils/apiError');
 class PaystackProvider extends PaymentProvider {
   constructor() {
     super();
-    this.secretKey = env.PAYSTACK_SECRET_KEY || '';
-    this.publicKey = env.PAYSTACK_PUBLIC_KEY || '';
     this.baseUrl = env.PAYSTACK_BASE_URL || 'https://api.paystack.co';
   }
 
-  // Dynamic evaluation: production NEVER allows mock mode under any circumstances
+  get secretKey() {
+    return (process.env.PAYSTACK_SECRET_KEY || env.PAYSTACK_SECRET_KEY || '').trim();
+  }
+
+  get publicKey() {
+    return (process.env.PAYSTACK_PUBLIC_KEY || env.PAYSTACK_PUBLIC_KEY || '').trim();
+  }
+
+  // Dynamic evaluation: production or live keys NEVER allow mock mode
   get isMock() {
-    if (env.NODE_ENV === 'production' || process.env.NODE_ENV === 'production') return false;
+    if (process.env.NODE_ENV === 'test') {
+      return process.env.PAYSTACK_MOCK_MODE === 'true';
+    }
+    if (env.NODE_ENV === 'production' || process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') {
+      return false;
+    }
+    const key = this.secretKey;
+    if (key.startsWith('sk_live_')) return false;
     return Boolean(env.PAYSTACK_MOCK_MODE) || process.env.PAYSTACK_MOCK_MODE === 'true';
   }
 

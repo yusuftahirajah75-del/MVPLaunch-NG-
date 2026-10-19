@@ -56,8 +56,8 @@ const env = {
 
   // Payment Provider & Paystack
   PAYMENT_PROVIDER: process.env.PAYMENT_PROVIDER || 'paystack',
-  PAYSTACK_SECRET_KEY: process.env.PAYSTACK_SECRET_KEY || '',
-  PAYSTACK_PUBLIC_KEY: process.env.PAYSTACK_PUBLIC_KEY || '',
+  PAYSTACK_SECRET_KEY: (process.env.PAYSTACK_SECRET_KEY || '').trim(),
+  PAYSTACK_PUBLIC_KEY: (process.env.PAYSTACK_PUBLIC_KEY || '').trim(),
   PAYSTACK_BASE_URL: process.env.PAYSTACK_BASE_URL || 'https://api.paystack.co',
   // Strict Mock Mode Isolation:
   // Disabled unconditionally if running in production, running on Render, or configured with a live Paystack key.
