@@ -16,8 +16,12 @@ class PaystackProvider extends PaymentProvider {
     this.secretKey = env.PAYSTACK_SECRET_KEY || '';
     this.publicKey = env.PAYSTACK_PUBLIC_KEY || '';
     this.baseUrl = env.PAYSTACK_BASE_URL || 'https://api.paystack.co';
-    // Strict isolation: production NEVER allows mock mode under any circumstances
-    this.isMock = env.NODE_ENV === 'production' ? false : Boolean(env.PAYSTACK_MOCK_MODE);
+  }
+
+  // Dynamic evaluation: production NEVER allows mock mode under any circumstances
+  get isMock() {
+    if (env.NODE_ENV === 'production' || process.env.NODE_ENV === 'production') return false;
+    return Boolean(env.PAYSTACK_MOCK_MODE) || process.env.PAYSTACK_MOCK_MODE === 'true';
   }
 
   /**

@@ -13,8 +13,13 @@ class OrdersService {
       throw ApiError.notFound('Order not found.');
     }
 
+    // Role-based tenant isolation
     if (user.role === ROLES.CLIENT && order.client_id !== user.id) {
-      throw ApiError.forbidden('Unauthorized access to this order.');
+      throw ApiError.forbidden('You do not have permission to access another client\'s order.');
+    }
+
+    if (user.role === ROLES.DEVELOPER) {
+      throw ApiError.forbidden('Software engineers do not have permission to access client financial orders.');
     }
 
     return order;
@@ -24,6 +29,10 @@ class OrdersService {
     const page = parseInt(query.page || '1', 10);
     const limit = parseInt(query.limit || '20', 10);
     const offset = (page - 1) * limit;
+
+    if (user.role === ROLES.DEVELOPER) {
+      return { orders: [], pagination: { page, limit, total: 0 } };
+    }
 
     const { orders, total } = await ordersRepo.findByUser(user.id, user.role, { limit, offset });
     return { orders, pagination: { page, limit, total } };

@@ -10,7 +10,7 @@
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js",
     "seed:demo": "node scripts/seedDemoUsers.js",
-    "test": "jest --runInBand --forceExit"
+    "test": "node scripts/run-tests.js"
   },
   "keywords": [
     "mvplaunch",
@@ -51,6 +51,14 @@
     ],
     "testMatch": [
       "**/tests/**/*.test.js"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/frontend/",
+      "<rootDir>/uploads/"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/frontend/"
     ],
     "testTimeout": 20000,
     "verbose": true

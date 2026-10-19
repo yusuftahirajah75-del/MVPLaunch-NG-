@@ -19,6 +19,7 @@ const {
   reviewDeliverableSchema,
   addNoteSchema
 } = require('./projects.validation');
+const { paymentLimiter } = require('../../middleware/rateLimiter.middleware');
 const { ROLES } = require('../../config/constants');
 
 const router = Router();
@@ -26,8 +27,8 @@ const router = Router();
 router.use(authenticate);
 
 // 1. Submit Project (Requires verified paid order)
-router.post('/submit', validate({ body: submitProjectSchema }), projectsController.submitProject);
-router.post('/', validate({ body: submitProjectSchema }), projectsController.submitProject);
+router.post('/submit', paymentLimiter, validate({ body: submitProjectSchema }), projectsController.submitProject);
+router.post('/', paymentLimiter, validate({ body: submitProjectSchema }), projectsController.submitProject);
 
 // 2. Engineers List for Admin Assignment
 router.get('/meta/engineers', authorize(ROLES.ADMIN), projectsController.listEngineers);

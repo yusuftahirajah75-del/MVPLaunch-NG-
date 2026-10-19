@@ -231,6 +231,21 @@ class PaymentsService {
       throw ApiError.notFound(`Payment record not found for reference '${reference}'.`);
     }
 
+    // Role and ownership verification (Anti-BOLA)
+    if (user) {
+      if (user.role === 'DEVELOPER') {
+        throw ApiError.forbidden('Software engineers do not have permission to inspect or verify customer payments.');
+      }
+      if (
+        user.role === 'CLIENT' &&
+        payment.user_id &&
+        payment.user_id !== user.id &&
+        payment.customer_email?.toLowerCase() !== user.email?.toLowerCase()
+      ) {
+        throw ApiError.forbidden('You do not have permission to verify another client\'s transaction.');
+      }
+    }
+
     // Idempotency: return immediately if already verified
     if (payment.status === 'VERIFIED') {
       const order = await ordersRepo.findById(payment.order_id);

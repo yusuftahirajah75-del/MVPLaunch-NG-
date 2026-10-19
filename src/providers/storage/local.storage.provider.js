@@ -30,13 +30,13 @@ const upload = multer({
     fileSize: env.MAX_FILE_SIZE_MB * 1024 * 1024 // e.g. 15MB
   },
   fileFilter: (req, file, cb) => {
-    // Whitelist common MVP specifications, assets, documents, and code archives
-    const allowedExtensions = /jpeg|jpg|png|webp|pdf|docx|txt|zip|tar|gz|json|svg/;
+    // Whitelist safe MVP specifications, assets, documents, and code archives (excluding executable SVG/HTML)
+    const allowedExtensions = /^(jpeg|jpg|png|webp|pdf|docx|txt|zip|tar|gz|json)$/i;
     const ext = path.extname(file.originalname).toLowerCase().replace('.', '');
     if (allowedExtensions.test(ext)) {
       cb(null, true);
     } else {
-      cb(new ApiError(400, `Unsupported file format (.${ext}). Allowed: pdf, docx, txt, zip, png, jpg, webp, svg, json`));
+      cb(new ApiError(400, `Unsupported file format (.${ext}). Allowed formats: pdf, docx, txt, zip, png, jpg, webp, json`));
     }
   }
 });

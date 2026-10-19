@@ -5,6 +5,7 @@ const { Router } = require('express');
 const paymentsController = require('./payments.controller');
 const { authenticate, optionalAuth } = require('../../middleware/auth.middleware');
 const { validate } = require('../../middleware/validate.middleware');
+const { paymentLimiter } = require('../../middleware/rateLimiter.middleware');
 const {
   initializePaymentSchema,
   initializePackagePaymentSchema,
@@ -24,15 +25,17 @@ if (process.env.NODE_ENV !== 'production') {
 // 3. Package Checkout initialization (Public / Optional Auth for visitors or logged in clients)
 router.post(
   '/initialize-package',
+  paymentLimiter,
   optionalAuth,
   validate({ body: initializePackagePaymentSchema }),
   paymentsController.initializePackagePayment
 );
 
 // 4. Verification endpoints (Public callback verification by reference)
-router.get('/verify/:reference', paymentsController.verifyPayment);
+router.get('/verify/:reference', paymentLimiter, paymentsController.verifyPayment);
 router.post(
   '/verify',
+  paymentLimiter,
   validate({ body: verifyPaymentSchema }),
   paymentsController.verifyPayment
 );

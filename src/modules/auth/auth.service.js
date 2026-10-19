@@ -41,7 +41,7 @@ class AuthService {
       passwordHash,
       fullName,
       phoneNumber: phoneNumber || null,
-      role: role || 'CLIENT'
+      role: 'CLIENT'
     });
 
     const token = signToken({ id: user.id, email: user.email, role: user.role });

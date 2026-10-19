@@ -20,8 +20,8 @@ class FilesService {
         throw ApiError.notFound('Project not found.');
       }
       if (
-        user.role === ROLES.CLIENT && project.client_id !== user.id ||
-        user.role === ROLES.DEVELOPER && project.developer_id !== user.id
+        (user.role === ROLES.CLIENT && project.client_id !== user.id) ||
+        (user.role === ROLES.DEVELOPER && project.developer_id !== user.id)
       ) {
         throw ApiError.forbidden('Unauthorized access to upload file to this project.');
       }
@@ -57,8 +57,8 @@ class FilesService {
     }
 
     if (
-      user.role === ROLES.CLIENT && project.client_id !== user.id ||
-      user.role === ROLES.DEVELOPER && project.developer_id !== user.id
+      (user.role === ROLES.CLIENT && project.client_id !== user.id) ||
+      (user.role === ROLES.DEVELOPER && project.developer_id !== user.id)
     ) {
       throw ApiError.forbidden('Unauthorized access to project files.');
     }

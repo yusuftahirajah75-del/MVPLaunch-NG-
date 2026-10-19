@@ -64,7 +64,9 @@ const registerSchema = z.preprocess(
       .optional()
       .transform((val) => (val && val.trim().length > 0 ? val.trim() : null)),
     role: z
-      .preprocess(normalizeRole, z.enum(['CLIENT', 'DEVELOPER']).default('CLIENT'))
+      .any()
+      .optional()
+      .transform(() => 'CLIENT')
   })
 );
 

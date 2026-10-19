@@ -38,6 +38,8 @@ class OrdersRepository {
     if (role === 'CLIENT') {
       params.push(userId);
       query += ` AND o.client_id = $${params.length}`;
+    } else if (role !== 'ADMIN') {
+      query += ` AND 1=0`;
     }
 
     const countRes = await db.query(

@@ -26,12 +26,12 @@ function errorHandler(err, req, res, next) {
     // Unique violation
     statusCode = 409;
     message = 'A record with this information already exists.';
-    errors = { detail: err.detail };
+    errors = env.NODE_ENV === 'development' ? { detail: err.detail } : null;
   } else if (err.code === '23503') {
     // Foreign key violation
     statusCode = 400;
     message = 'Referenced related record does not exist or cannot be modified.';
-    errors = { detail: err.detail };
+    errors = env.NODE_ENV === 'development' ? { detail: err.detail } : null;
   } else if (err.code === '22P02') {
     // Invalid UUID / type syntax
     statusCode = 400;

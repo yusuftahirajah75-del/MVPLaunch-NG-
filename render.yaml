@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: mvplaunch-ng
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PAYSTACK_MOCK_MODE
+        value: "false"
+      - key: APP_URL
+        value: https://mvplaunch-ng.onrender.com
+      - key: FRONTEND_URL
+        value: https://mvplaunch-ng.onrender.com
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_PUBLIC_KEY
+        sync: false

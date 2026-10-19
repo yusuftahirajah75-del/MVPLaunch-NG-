@@ -38,7 +38,24 @@ const authLimiter = rateLimit({
   }
 });
 
+// Sensitive Rate limiter for Payments & Checkout
+const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => env.NODE_ENV === 'test' || process.env.SKIP_RATE_LIMIT === 'true',
+  handler: (req, res) => {
+    return ApiResponse.error(
+      res,
+      'Too many checkout or verification requests. Please wait a few minutes before trying again.',
+      429
+    );
+  }
+});
+
 module.exports = {
   apiLimiter,
-  authLimiter
+  authLimiter,
+  paymentLimiter
 };

@@ -19,6 +19,10 @@ class MilestonesService {
       throw ApiError.forbidden('Only developers or administrators can create milestones.');
     }
 
+    if (user.role === ROLES.DEVELOPER && project.developer_id !== user.id) {
+      throw ApiError.forbidden('You can only create milestones for projects explicitly assigned to you.');
+    }
+
     const milestone = await milestonesRepo.create(data);
 
     await recordAuditLog({
@@ -27,7 +31,7 @@ class MilestonesService {
       entityType: 'MILESTONE',
       entityId: milestone.id,
       req,
-      details: { title: milestone.title, amountNgn: milestone.amount_ngn }
+      details: { title: milestone.title, amountNgn: milestone.amount_ngn, projectId: data.projectId }
     });
 
     return milestone;
@@ -40,8 +44,8 @@ class MilestonesService {
     }
 
     if (
-      user.role === ROLES.CLIENT && project.client_id !== user.id ||
-      user.role === ROLES.DEVELOPER && project.developer_id !== user.id
+      (user.role === ROLES.CLIENT && project.client_id !== user.id) ||
+      (user.role === ROLES.DEVELOPER && project.developer_id !== user.id)
     ) {
       throw ApiError.forbidden('Unauthorized access to project milestones.');
     }

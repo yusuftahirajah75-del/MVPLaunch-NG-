@@ -68,6 +68,36 @@ class UsersRepository {
     );
     return res.rows[0];
   }
+
+  async setRole(id, role) {
+    const res = await db.query(
+      `UPDATE users SET role = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2
+       RETURNING id, email, full_name, role, is_active`,
+      [role, id]
+    );
+    return res.rows[0];
+  }
+
+  async createDeveloper({ email, passwordHash, fullName, phoneNumber, skills, specializations, bio }) {
+    const res = await db.query(
+      `INSERT INTO users (
+        email, password_hash, full_name, phone_number, role,
+        is_active, is_verified, bio, skills, availability_status, specializations
+       )
+       VALUES (LOWER($1), $2, $3, $4, 'DEVELOPER', true, true, $5, $6, 'AVAILABLE', $7::jsonb)
+       RETURNING id, email, full_name, phone_number, role, is_active, is_verified, skills, availability_status, created_at`,
+      [
+        email,
+        passwordHash,
+        fullName,
+        phoneNumber || null,
+        bio || null,
+        skills || null,
+        JSON.stringify(specializations || [])
+      ]
+    );
+    return res.rows[0];
+  }
 }
 
 module.exports = new UsersRepository();

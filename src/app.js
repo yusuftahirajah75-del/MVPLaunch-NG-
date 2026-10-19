@@ -58,8 +58,20 @@ app.use(
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// 4. Static Uploads directory
-app.use('/uploads', express.static(path.resolve(process.cwd(), env.UPLOAD_DIR)));
+// 4. Static Uploads directory (with strict MIME sniffing & sandbox protective headers)
+app.use(
+  '/uploads',
+  express.static(path.resolve(process.cwd(), env.UPLOAD_DIR), {
+    setHeaders: (res, filePath) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+      if (filePath.endsWith('.svg') || filePath.endsWith('.html') || filePath.endsWith('.htm')) {
+        res.setHeader('Content-Disposition', 'attachment');
+        res.setHeader('Content-Type', 'application/octet-stream');
+      }
+    }
+  })
+);
 
 // 5. Swagger/OpenAPI Documentation
 try {

@@ -40,6 +40,24 @@ class UsersController {
       next(error);
     }
   }
+
+  async updateRole(req, res, next) {
+    try {
+      const updated = await usersService.setUserRole(req.params.id, req.body.role, req.user.id, req);
+      return ApiResponse.success(res, `User role updated to ${req.body.role} successfully`, { user: updated });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createDeveloper(req, res, next) {
+    try {
+      const developer = await usersService.createDeveloper(req.body, req.user.id, req);
+      return ApiResponse.created(res, 'Software engineer account created successfully', { developer });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new UsersController();

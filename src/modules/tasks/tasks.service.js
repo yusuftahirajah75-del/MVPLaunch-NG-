@@ -18,6 +18,10 @@ class TasksService {
       throw ApiError.forbidden('Clients cannot create technical tasks directly.');
     }
 
+    if (user.role === ROLES.DEVELOPER && project.developer_id !== user.id) {
+      throw ApiError.forbidden('You can only create tasks for projects explicitly assigned to you.');
+    }
+
     const task = await tasksRepo.create(data);
 
     await recordAuditLog({
@@ -26,7 +30,7 @@ class TasksService {
       entityType: 'TASK',
       entityId: task.id,
       req,
-      details: { title: task.title, milestoneId: task.milestone_id }
+      details: { title: task.title, milestoneId: task.milestone_id, projectId: data.projectId }
     });
 
     return task;
@@ -39,8 +43,8 @@ class TasksService {
     }
 
     if (
-      user.role === ROLES.CLIENT && project.client_id !== user.id ||
-      user.role === ROLES.DEVELOPER && project.developer_id !== user.id
+      (user.role === ROLES.CLIENT && project.client_id !== user.id) ||
+      (user.role === ROLES.DEVELOPER && project.developer_id !== user.id)
     ) {
       throw ApiError.forbidden('Unauthorized access to project tasks.');
     }
@@ -54,8 +58,14 @@ class TasksService {
       throw ApiError.notFound('Task not found.');
     }
 
+    const project = await projectsRepo.findById(task.project_id);
+
     if (user.role === ROLES.CLIENT) {
       throw ApiError.forbidden('Clients cannot update task statuses.');
+    }
+
+    if (user.role === ROLES.DEVELOPER && (!project || project.developer_id !== user.id)) {
+      throw ApiError.forbidden('You can only update tasks for projects explicitly assigned to you.');
     }
 
     const updated = await tasksRepo.update(id, updateData);
@@ -78,8 +88,14 @@ class TasksService {
       throw ApiError.notFound('Task not found.');
     }
 
+    const project = await projectsRepo.findById(task.project_id);
+
     if (user.role === ROLES.CLIENT) {
       throw ApiError.forbidden('Clients cannot delete tasks.');
+    }
+
+    if (user.role === ROLES.DEVELOPER && (!project || project.developer_id !== user.id)) {
+      throw ApiError.forbidden('You can only delete tasks for projects explicitly assigned to you.');
     }
 
     await tasksRepo.delete(id);

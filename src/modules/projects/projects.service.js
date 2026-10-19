@@ -594,11 +594,22 @@ class ProjectsService {
       throw ApiError.notFound('Project not found.');
     }
 
-    if (
-      user.role === ROLES.CLIENT ||
-      (user.role === ROLES.DEVELOPER && project.developer_id !== user.id)
-    ) {
-      throw ApiError.forbidden('Only the assigned developer or an admin can update project status.');
+    if (user.role === ROLES.CLIENT) {
+      throw ApiError.forbidden('Clients cannot directly modify technical project statuses.');
+    }
+
+    if (user.role === ROLES.DEVELOPER && project.developer_id !== user.id) {
+      throw ApiError.forbidden('You are not assigned to this project.');
+    }
+
+    // Role-based state machine transition validation
+    if (user.role === ROLES.DEVELOPER) {
+      const allowedDeveloperStatuses = ['ACCEPTED', 'IN_DEVELOPMENT', 'INTERNAL_REVIEW'];
+      if (updateData.status && !allowedDeveloperStatuses.includes(updateData.status)) {
+        throw ApiError.forbidden(
+          `Developers are only permitted to update status to [${allowedDeveloperStatuses.join(', ')}]. Administrative approval is required for status '${updateData.status}'.`
+        );
+      }
     }
 
     const updated = await projectsRepo.updateStatus(id, updateData);
