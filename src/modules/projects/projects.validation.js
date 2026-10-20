@@ -32,7 +32,14 @@ const submitProjectSchema = z.object({
   selectedPackageId: z.string().optional().nullable(),
   selectedPackageName: z.string().optional().nullable(),
   attachmentUrl: z.string().optional().nullable(),
-  additionalNotes: z.string().optional().nullable()
+  additionalNotes: z.string().optional().nullable(),
+  clientContactName: z.string().optional().nullable(),
+  clientContactEmail: z.string().email().optional().nullable().or(z.literal('')),
+  clientContactPhone: z.string().optional().nullable()
+});
+
+const declineProjectSchema = z.object({
+  reason: z.string().max(500).optional().nullable()
 });
 
 const updateProjectStatusSchema = z.object({
@@ -95,5 +102,6 @@ module.exports = {
   updateProgressSchema,
   submitDeliverableSchema,
   reviewDeliverableSchema,
-  addNoteSchema
+  addNoteSchema,
+  declineProjectSchema
 };

@@ -137,6 +137,7 @@ class ApiClient {
     updateScope: (id, body) => this.patch(`/projects/${id}/scope`, body),
     assignEngineer: (id, body) => this.post(`/projects/${id}/assign-engineer`, body),
     accept: (id) => this.post(`/projects/${id}/accept`, {}),
+    decline: (id, reason = '') => this.post(`/projects/${id}/decline`, { reason }),
     updateProgress: (id, body) => this.patch(`/projects/${id}/progress`, body),
     submitDeliverable: (id, body) => this.post(`/projects/${id}/deliverables`, body),
     reviewDeliverable: (deliverableId, body) => this.patch(`/projects/deliverables/${deliverableId}/review`, body),

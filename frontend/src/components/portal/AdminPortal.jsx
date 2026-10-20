@@ -5,7 +5,8 @@ import {
   Package, ShoppingBag, ExternalLink, Filter, AlertTriangle,
   ArrowUpRight, UserCheck, MessageSquare, Code, CheckSquare,
   Search, ChevronRight, X, AlertCircle, Send, Eye, ShieldCheck,
-  Briefcase, Calendar, Star, Tag, ChevronDown, Check
+  Briefcase, Calendar, Star, Tag, ChevronDown, Check,
+  Rocket, Loader2, Play
 } from 'lucide-react';
 import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -33,6 +34,7 @@ export default function AdminPortal({ onBackToLanding }) {
   // Selected Records for Modals / Dossier
   const [inspectOrder, setInspectOrder] = useState(null);
   const [inspectProject, setInspectProject] = useState(null);
+  const [dossierLoading, setDossierLoading] = useState(false);
   const [activeProjectNotes, setActiveProjectNotes] = useState([]);
   const [newProjectNote, setNewProjectNote] = useState('');
   const [notePosting, setNotePosting] = useState(false);
@@ -107,29 +109,44 @@ export default function AdminPortal({ onBackToLanding }) {
 
   // Open Full Project Dossier
   const openProjectDossier = async (projectId) => {
+    setDossierLoading(true);
     try {
       const res = await api.projects.getById(projectId);
       const proj = res?.data?.project || res?.data;
-      setInspectProject(proj);
-      if (proj) {
-        // Load notes
-        const nRes = await api.projects.getNotes(proj.id).catch(() => ({ data: { notes: [] } }));
-        setActiveProjectNotes(nRes?.data?.notes || []);
-        // Pre-fill scoping
-        setScopeAdminNotes(proj.admin_notes || '');
-        setScopeAdminInstructions(proj.admin_instructions || '');
-        setScopeAcceptanceCriteria(proj.acceptance_criteria || '');
-        setScopeInternalDeadline(proj.internal_deadline ? proj.internal_deadline.split('T')[0] : '');
-        setScopePriority(proj.priority || 'NORMAL');
-        // Pre-fill assignment
-        setSelectedEngineerId(proj.developer_id || '');
-        setAssignInstructions(proj.admin_instructions || '');
-        setAssignPriority(proj.priority || 'NORMAL');
-        setAssignDeadline(proj.internal_deadline ? proj.internal_deadline.split('T')[0] : '');
+      if (!proj) {
+        showToast('Project record not found', 'error');
+        return;
       }
+      setInspectProject(proj);
+      // Load notes
+      const nRes = await api.projects.getNotes(proj.id).catch(() => ({ data: { notes: [] } }));
+      setActiveProjectNotes(nRes?.data?.notes || []);
+      // Pre-fill scoping
+      setScopeAdminNotes(proj.admin_notes || '');
+      setScopeAdminInstructions(proj.admin_instructions || '');
+      setScopeAcceptanceCriteria(proj.acceptance_criteria || '');
+      setScopeInternalDeadline(proj.internal_deadline ? proj.internal_deadline.split('T')[0] : '');
+      setScopePriority(proj.priority || 'NORMAL');
+      // Pre-fill assignment
+      setSelectedEngineerId(proj.developer_id || '');
+      setAssignInstructions(proj.admin_instructions || '');
+      setAssignPriority(proj.priority || 'NORMAL');
+      setAssignDeadline(proj.internal_deadline ? proj.internal_deadline.split('T')[0] : '');
     } catch (err) {
       showToast('Error opening project dossier: ' + err.message, 'error');
+    } finally {
+      setDossierLoading(false);
     }
+  };
+
+  // Open Engineer Assignment Modal directly for a project
+  const openAssignModalForProject = (proj) => {
+    setInspectProject(proj);
+    setSelectedEngineerId(proj.developer_id || '');
+    setAssignInstructions(proj.admin_instructions || '');
+    setAssignPriority(proj.priority || 'NORMAL');
+    setAssignDeadline(proj.internal_deadline ? proj.internal_deadline.split('T')[0] : '');
+    setAssignModalOpen(true);
   };
 
   // Submit Technical Scoping
@@ -587,16 +604,24 @@ export default function AdminPortal({ onBackToLanding }) {
                           {order.project_id ? (
                             <button
                               onClick={() => openProjectDossier(order.project_id)}
-                              className="btn btn-secondary btn-sm"
-                              style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
+                              className="btn btn-primary btn-sm"
+                              style={{
+                                fontSize: '0.78rem',
+                                padding: '0.4rem 0.8rem',
+                                gap: '0.35rem',
+                                background: 'var(--accent-emerald)',
+                                color: '#032014',
+                                fontWeight: 700
+                              }}
+                              title="View full submitted client project details and developer assignment status"
                             >
                               <Eye size={13} />
-                              <span>Open Record</span>
+                              <span>View Project Details</span>
                             </button>
                           ) : (
                             <button
                               onClick={() => setInspectOrder(order)}
-                              className="btn btn-ghost btn-sm"
+                              className="btn btn-secondary btn-sm"
                               style={{ fontSize: '0.78rem', padding: '0.35rem 0.65rem' }}
                             >
                               Inspect Order
@@ -760,15 +785,36 @@ export default function AdminPortal({ onBackToLanding }) {
                       </div>
                     </div>
 
-                    {/* Action to Open Workspace */}
-                    <button
-                      onClick={() => openProjectDossier(proj.id)}
-                      className="btn btn-primary btn-sm"
-                      style={{ width: '100%', justifyContent: 'center', padding: '0.6rem', marginTop: '0.5rem' }}
-                    >
-                      <span>Open Technical Dossier & Actions</span>
-                      <ChevronRight size={15} />
-                    </button>
+                    {/* Actions: View Project Details & Assign Developer */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.75rem' }}>
+                      <button
+                        onClick={() => openProjectDossier(proj.id)}
+                        className="btn btn-secondary btn-sm"
+                        style={{ justifyContent: 'center', fontSize: '0.78rem', padding: '0.55rem', gap: '0.35rem' }}
+                        title="View complete submitted brief and project information"
+                      >
+                        <Eye size={14} />
+                        <span>View Details</span>
+                      </button>
+
+                      <button
+                        onClick={() => openAssignModalForProject(proj)}
+                        className="btn btn-primary btn-sm"
+                        style={{
+                          justifyContent: 'center',
+                          fontSize: '0.78rem',
+                          padding: '0.55rem',
+                          gap: '0.35rem',
+                          background: proj.developer_id ? 'var(--bg-surface)' : 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                          borderColor: proj.developer_id ? 'var(--border-subtle)' : '#818cf8',
+                          color: '#fff'
+                        }}
+                        title="Assign or reassign registered software engineer"
+                      >
+                        <UserCheck size={14} />
+                        <span>{proj.developer_id ? 'Reassign' : 'Assign Developer'}</span>
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -1086,6 +1132,28 @@ export default function AdminPortal({ onBackToLanding }) {
               )}
             </div>
 
+            {/* Decline Notice if previously declined by engineer */}
+            {inspectProject.decline_reason && (
+              <div style={{
+                background: 'rgba(244, 63, 94, 0.1)',
+                border: '1px solid rgba(244, 63, 94, 0.3)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '0.75rem 1rem',
+                marginBottom: '1rem',
+                color: '#fda4af',
+                fontSize: '0.85rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <AlertTriangle size={18} style={{ flexShrink: 0 }} />
+                <div>
+                  <strong>Previous Assignment Declined by Engineer:</strong> {inspectProject.decline_reason}
+                  {inspectProject.declined_at && ` (${new Date(inspectProject.declined_at).toLocaleString()})`}
+                </div>
+              </div>
+            )}
+
             {/* Section 1: Client & Payment Verification Summary */}
             <div style={{
               background: 'var(--bg-surface)',
@@ -1098,37 +1166,64 @@ export default function AdminPortal({ onBackToLanding }) {
               gap: '1rem'
             }}>
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Client Name</div>
-                <div style={{ fontWeight: 700, color: '#fff' }}>{inspectProject.client_name}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{inspectProject.client_email}</div>
-                <div style={{ fontSize: '0.78rem', color: 'var(--accent-emerald-light)' }}>{inspectProject.client_phone || '—'}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Client Contact Details</div>
+                <div style={{ fontWeight: 700, color: '#fff' }}>
+                  {inspectProject.client_contact_name || inspectProject.client_name}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                  {inspectProject.client_contact_email || inspectProject.client_email}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--accent-emerald-light)' }}>
+                  {inspectProject.client_contact_phone || inspectProject.client_phone || '—'}
+                </div>
               </div>
 
               <div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Organization / Domain</div>
                 <div style={{ fontWeight: 600, color: '#e2e8f0' }}>{inspectProject.organization_name || 'Independent Founder'}</div>
                 <div style={{ fontSize: '0.78rem', color: '#38bdf8' }}>{inspectProject.industry}</div>
+                {inspectProject.created_at && (
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    Submitted: {new Date(inspectProject.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                  </div>
+                )}
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Package & Payment</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Package & Payment Reference</div>
                 <div style={{ fontWeight: 700, color: 'var(--accent-emerald-light)' }}>
                   {inspectProject.selected_package_name || inspectProject.package_name || 'Launch Package'}
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
-                  Paystack Ref: {inspectProject.payment_reference || inspectProject.paystack_ref || 'VERIFIED'}
+                  Ref: {inspectProject.payment_reference || inspectProject.paystack_ref || 'VERIFIED'}
                 </div>
               </div>
 
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Assigned Engineer</div>
-                <div style={{ fontWeight: 700, color: inspectProject.developer_name ? '#c7d2fe' : '#fbbf24' }}>
-                  {inspectProject.developer_name || 'None (Awaiting Assignment)'}
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Assigned Software Engineer</div>
+                <div style={{ fontWeight: 700, color: inspectProject.developer_name ? '#c7d2fe' : '#fbbf24', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  {inspectProject.developer_name ? (
+                    <>
+                      <UserCheck size={14} color="#818cf8" />
+                      <span>{inspectProject.developer_name}</span>
+                    </>
+                  ) : (
+                    <span>None (Unassigned)</span>
+                  )}
                 </div>
-                {inspectProject.internal_deadline && (
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                    Deadline: {new Date(inspectProject.internal_deadline).toLocaleDateString()}
+                {inspectProject.assigned_at && (
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                    Assigned: {new Date(inspectProject.assigned_at).toLocaleDateString()}
                   </div>
+                )}
+                {!inspectProject.developer_id && (
+                  <button
+                    onClick={() => setAssignModalOpen(true)}
+                    className="btn btn-primary btn-sm"
+                    style={{ marginTop: '0.4rem', fontSize: '0.74rem', padding: '0.25rem 0.55rem' }}
+                  >
+                    Assign Developer Now
+                  </button>
                 )}
               </div>
             </div>
@@ -1487,6 +1582,37 @@ export default function AdminPortal({ onBackToLanding }) {
               </button>
             </div>
 
+            {/* Project Summary Preview for Admin Assignment */}
+            {inspectProject && (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: 'var(--radius-md)',
+                padding: '0.85rem 1rem',
+                marginBottom: '1rem'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#38bdf8', fontSize: '0.82rem' }}>
+                    {inspectProject.project_code || 'PRJ-RECORD'}
+                  </span>
+                  <span className="badge badge-emerald" style={{ fontSize: '0.7rem' }}>
+                    {inspectProject.selected_package_name || inspectProject.order_package_name || 'Launch Package'}
+                  </span>
+                </div>
+                <h4 style={{ margin: '0 0 0.25rem 0', color: '#fff', fontSize: '0.95rem' }}>
+                  {inspectProject.title}
+                </h4>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                  Client: <strong style={{ color: '#e2e8f0' }}>{inspectProject.client_contact_name || inspectProject.client_name}</strong> • Industry: {inspectProject.industry}
+                </div>
+                {inspectProject.problem_statement && (
+                  <p style={{ margin: 0, fontSize: '0.76rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                    <strong>Problem:</strong> {inspectProject.problem_statement.length > 120 ? inspectProject.problem_statement.substring(0, 120) + '...' : inspectProject.problem_statement}
+                  </p>
+                )}
+              </div>
+            )}
+
             <form onSubmit={handleAssignEngineer}>
               <div className="form-group">
                 <label className="form-label">Select Software Engineer *</label>
@@ -1659,6 +1785,26 @@ export default function AdminPortal({ onBackToLanding }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Loading Dossier State */}
+      {dossierLoading && (
+        <div className="modal-overlay" style={{ zIndex: 1300 }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            padding: '2rem 3rem',
+            borderRadius: 'var(--radius-lg)',
+            border: '1px solid var(--border-subtle)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+            color: '#fff'
+          }}>
+            <Loader2 size={36} className="animate-spin" color="var(--accent-emerald)" />
+            <div style={{ fontSize: '0.95rem', fontWeight: 600 }}>Loading Complete Project Record...</div>
           </div>
         </div>
       )}

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Code, CheckSquare, CloudUpload, RefreshCw, Send, CheckCircle2,
   ArrowRight, ShieldCheck, Clock, FileText, ExternalLink, AlertCircle,
-  MessageSquare, ChevronRight, AlertTriangle, Layers, UserCheck, Play
+  MessageSquare, ChevronRight, AlertTriangle, Layers, UserCheck, Play,
+  XCircle, X, Calendar, User, Phone, Mail
 } from 'lucide-react';
 import { api } from '../../api/client';
 import { useAuth } from '../../context/AuthContext';
@@ -31,6 +32,10 @@ export default function DeveloperPortal({ onBackToLanding }) {
   const [repoUrl, setRepoUrl] = useState('');
   const [productionUrl, setProductionUrl] = useState('');
   const [submissionNotes, setSubmissionNotes] = useState('');
+
+  // Decline Assignment State
+  const [declineModalOpen, setDeclineModalOpen] = useState(false);
+  const [declineReason, setDeclineReason] = useState('');
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -86,10 +91,50 @@ export default function DeveloperPortal({ onBackToLanding }) {
     setActionLoading(true);
     try {
       await api.projects.accept(selectedProject.id);
-      showToast('Task accepted! Ready for development.');
+      showToast('Assignment accepted! Ready for development.');
       await loadDeveloperTasks();
     } catch (err) {
-      showToast(err.message || 'Could not accept task', 'error');
+      showToast(err.message || 'Could not accept assignment', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Action: Decline Assigned Task
+  const handleDeclineTask = async (e) => {
+    e.preventDefault();
+    if (!selectedProject) return;
+    if (!declineReason.trim()) {
+      showToast('Please state a reason for declining this assignment.', 'error');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      await api.projects.decline(selectedProject.id, declineReason.trim());
+      showToast('Assignment declined. Platform Director has been notified.');
+      setDeclineModalOpen(false);
+      setDeclineReason('');
+      await loadDeveloperTasks();
+    } catch (err) {
+      showToast(err.message || 'Could not decline assignment', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Action: Start Development
+  const handleStartDevelopment = async () => {
+    if (!selectedProject) return;
+    setActionLoading(true);
+    try {
+      await api.projects.updateProgress(selectedProject.id, {
+        status: 'IN_DEVELOPMENT',
+        progressPercent: selectedProject.progress_percent || 10
+      });
+      showToast('Project moved to In Development!');
+      await loadDeveloperTasks();
+    } catch (err) {
+      showToast(err.message || 'Could not start development', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -370,15 +415,39 @@ export default function DeveloperPortal({ onBackToLanding }) {
 
                     {/* Primary Workflow Triggers */}
                     <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      {selectedProject.status === 'ENGINEER_ASSIGNED' && (
+                      {['ENGINEER_ASSIGNED', 'SUBMITTED'].includes(selectedProject.status) && (
+                        <>
+                          <button
+                            onClick={handleAcceptTask}
+                            disabled={actionLoading}
+                            className="btn btn-primary"
+                            style={{ gap: '0.4rem', background: 'var(--accent-emerald)', color: '#032014', fontWeight: 700 }}
+                          >
+                            <Play size={16} />
+                            <span>Accept Assignment</span>
+                          </button>
+
+                          <button
+                            onClick={() => setDeclineModalOpen(true)}
+                            disabled={actionLoading}
+                            className="btn btn-secondary"
+                            style={{ gap: '0.4rem', borderColor: 'rgba(244, 63, 94, 0.4)', color: '#f87171' }}
+                          >
+                            <XCircle size={16} />
+                            <span>Decline Assignment</span>
+                          </button>
+                        </>
+                      )}
+
+                      {selectedProject.status === 'ACCEPTED' && (
                         <button
-                          onClick={handleAcceptTask}
+                          onClick={handleStartDevelopment}
                           disabled={actionLoading}
                           className="btn btn-primary"
-                          style={{ gap: '0.4rem', background: 'var(--accent-emerald)', color: '#032014', fontWeight: 700 }}
+                          style={{ gap: '0.4rem', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', fontWeight: 700 }}
                         >
-                          <Play size={16} />
-                          <span>Accept Assigned Task</span>
+                          <Code size={16} />
+                          <span>Start Development</span>
                         </button>
                       )}
 
@@ -475,25 +544,75 @@ export default function DeveloperPortal({ onBackToLanding }) {
                   borderRadius: 'var(--radius-lg)',
                   padding: '1.25rem'
                 }}>
-                  <h4 style={{ fontSize: '1.05rem', color: '#fff', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    <FileText size={18} color="var(--accent-emerald)" />
-                    <span>Complete Client Product Brief</span>
-                  </h4>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <h4 style={{ fontSize: '1.05rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <FileText size={18} color="var(--accent-emerald)" />
+                      <span>Complete Client Product Brief</span>
+                    </h4>
+
+                    {selectedProject.assigned_at && (
+                      <span style={{ fontSize: '0.75rem', color: '#818cf8', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                        <Calendar size={13} />
+                        <span>Assigned: {new Date(selectedProject.assigned_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Client Contact Info Banner */}
+                  <div style={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid var(--border-subtle)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.85rem 1rem',
+                    marginBottom: '1rem',
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                    gap: '0.75rem',
+                    fontSize: '0.82rem'
+                  }}>
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Client Contact</span>
+                      <strong style={{ color: '#fff' }}>
+                        {selectedProject.client_contact_name || selectedProject.client_name || 'MVP Client'}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Contact Email</span>
+                      <a href={`mailto:${selectedProject.client_contact_email || selectedProject.client_email}`} style={{ color: '#38bdf8' }}>
+                        {selectedProject.client_contact_email || selectedProject.client_email || '—'}
+                      </a>
+                    </div>
+
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Contact Phone</span>
+                      <span style={{ color: 'var(--accent-emerald-light)' }}>
+                        {selectedProject.client_contact_phone || selectedProject.client_phone || '—'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.72rem' }}>Industry Domain</span>
+                      <span style={{ color: '#c7d2fe', fontWeight: 600 }}>
+                        {selectedProject.industry || 'Tech / Web'}
+                      </span>
+                    </div>
+                  </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.88rem' }}>
                     <div>
                       <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Problem Being Solved</span>
-                      <p style={{ margin: '0.2rem 0 0 0', color: '#e2e8f0' }}>{selectedProject.problem_statement || selectedProject.description}</p>
+                      <p style={{ margin: '0.2rem 0 0 0', color: '#e2e8f0', lineHeight: '1.5' }}>{selectedProject.problem_statement || selectedProject.description}</p>
                     </div>
 
                     <div>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Target Audience</span>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Target Audience & Users</span>
                       <p style={{ margin: '0.2rem 0 0 0', color: '#e2e8f0' }}>{selectedProject.target_users || '—'}</p>
                     </div>
 
                     <div>
-                      <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Proposed Solution</span>
-                      <p style={{ margin: '0.2rem 0 0 0', color: '#e2e8f0' }}>{selectedProject.proposed_solution || '—'}</p>
+                      <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Proposed Idea / Solution</span>
+                      <p style={{ margin: '0.2rem 0 0 0', color: '#e2e8f0', lineHeight: '1.5' }}>{selectedProject.proposed_solution || '—'}</p>
                     </div>
 
                     <div>
@@ -509,14 +628,14 @@ export default function DeveloperPortal({ onBackToLanding }) {
 
                     {selectedProject.technical_requirements && (
                       <div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Technical Requirements</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Technical / API Requirements</span>
                         <p style={{ margin: '0.2rem 0 0 0', color: '#e2e8f0' }}>{selectedProject.technical_requirements}</p>
                       </div>
                     )}
 
                     {selectedProject.attachment_url && (
                       <div>
-                        <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Client Attachment</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.78rem', display: 'block' }}>Client Prototype / Specification Link</span>
                         <a href={selectedProject.attachment_url} target="_blank" rel="noreferrer" style={{ color: '#38bdf8', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginTop: '0.2rem' }}>
                           <ExternalLink size={14} />
                           <span>View Reference Link</span>
@@ -727,6 +846,57 @@ export default function DeveloperPortal({ onBackToLanding }) {
                   {actionLoading ? 'Submitting...' : 'Submit to Admin QA Review'}
                 </button>
                 <button type="button" onClick={() => setDeliverableModalOpen(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* DECLINE ASSIGNMENT MODAL                                  */}
+      {/* ========================================================= */}
+      {declineModalOpen && selectedProject && (
+        <div className="modal-overlay" onClick={() => setDeclineModalOpen(false)} style={{ zIndex: 1200 }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ width: 'min(520px, 95vw)', padding: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.25rem', color: '#fff', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <AlertCircle size={20} color="#f43f5e" />
+                <span>Decline Project Assignment</span>
+              </h3>
+              <button onClick={() => setDeclineModalOpen(false)} className="btn btn-ghost btn-sm" style={{ padding: 0 }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: '0 0 1rem 0' }}>
+              Declining will unassign project <strong style={{ color: '#fff' }}>{selectedProject.project_code} ({selectedProject.title})</strong> and return it to the Platform Director's unassigned queue so it can be reassigned to another engineer.
+            </p>
+
+            <form onSubmit={handleDeclineTask}>
+              <div className="form-group">
+                <label className="form-label">Reason for declining *</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  placeholder="e.g. Current workload capacity reached, tech stack divergence, or scheduling conflicts..."
+                  className="form-textarea"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
+                <button
+                  type="submit"
+                  disabled={actionLoading || !declineReason.trim()}
+                  className="btn btn-danger"
+                  style={{ flex: 1, justifyContent: 'center' }}
+                >
+                  {actionLoading ? 'Declining...' : 'Confirm Decline'}
+                </button>
+                <button type="button" onClick={() => setDeclineModalOpen(false)} className="btn btn-secondary">
                   Cancel
                 </button>
               </div>

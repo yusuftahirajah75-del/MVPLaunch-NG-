@@ -38,7 +38,10 @@ class ProjectsRepository {
     selectedPackageName,
     paymentReference,
     attachmentUrl,
-    additionalNotes
+    additionalNotes,
+    clientContactName,
+    clientContactEmail,
+    clientContactPhone
   }) {
     const client = await db.getClient();
     try {
@@ -51,6 +54,7 @@ class ProjectsRepository {
           core_features, nice_to_have_features, expected_outcome, existing_product_url,
           competitor_references, design_preferences, technical_requirements, preferred_deadline,
           selected_package_id, selected_package_name, payment_reference, attachment_url, additional_notes,
+          client_contact_name, client_contact_email, client_contact_phone,
           status, submission_status
         )
         VALUES (
@@ -59,6 +63,7 @@ class ProjectsRepository {
           $11::jsonb, $12::jsonb, $13, $14,
           $15, $16, $17, $18,
           $19, $20, $21, $22, $23,
+          $24, $25, $26,
           'SUBMITTED', 'SUBMITTED'
         )
         RETURNING *`,
@@ -85,7 +90,10 @@ class ProjectsRepository {
           selectedPackageName || null,
           paymentReference || null,
           attachmentUrl || null,
-          additionalNotes || null
+          additionalNotes || null,
+          clientContactName || null,
+          clientContactEmail || null,
+          clientContactPhone || null
         ]
       );
 
@@ -281,10 +289,31 @@ class ProjectsRepository {
            priority = COALESCE($3, priority),
            internal_deadline = COALESCE($4::timestamp, internal_deadline),
            status = CASE WHEN $1::uuid IS NOT NULL THEN 'ENGINEER_ASSIGNED' ELSE 'AWAITING_ENGINEER' END,
+           assigned_at = CASE WHEN $1::uuid IS NOT NULL THEN CURRENT_TIMESTAMP ELSE NULL END,
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $5::uuid
        RETURNING *`,
       [developerId || null, instructions || null, priority || null, internalDeadline || null, id]
+    );
+    return res.rows[0];
+  }
+
+  async declineProject(id, reason = '') {
+    const res = await db.query(
+      `UPDATE projects
+       SET developer_id = NULL,
+           status = 'SUBMITTED',
+           declined_at = CURRENT_TIMESTAMP,
+           decline_reason = $1::text,
+           admin_instructions = CASE 
+             WHEN $1::text IS NOT NULL AND $1::text != '' 
+             THEN COALESCE(admin_instructions || E'\n[Declined: ' || $1::text || ']', '[Declined: ' || $1::text || ']')
+             ELSE admin_instructions 
+           END,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2::uuid
+       RETURNING *`,
+      [reason || null, id]
     );
     return res.rows[0];
   }

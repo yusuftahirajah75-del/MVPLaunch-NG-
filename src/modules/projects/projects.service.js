@@ -124,7 +124,10 @@ class ProjectsService {
       selectedPackageName: order.package_name || data.selectedPackageName || null,
       paymentReference: data.paymentReference || order.paystack_reference || null,
       attachmentUrl: data.attachmentUrl || null,
-      additionalNotes: data.additionalNotes?.trim() || null
+      additionalNotes: data.additionalNotes?.trim() || null,
+      clientContactName: data.clientContactName?.trim() || user.full_name || null,
+      clientContactEmail: data.clientContactEmail?.trim() || user.email || null,
+      clientContactPhone: data.clientContactPhone?.trim() || user.phone_number || null
     });
 
     await recordAuditLog({
@@ -341,6 +344,33 @@ class ProjectsService {
       entityId: id,
       req,
       details: { projectCode: project.project_code }
+    });
+
+    return updated;
+  }
+
+  /**
+   * Engineer declines assigned task
+   */
+  async declineProject(id, developerUser, reason = '', req) {
+    const project = await projectsRepo.findById(id);
+    if (!project) {
+      throw ApiError.notFound('Project not found.');
+    }
+
+    if (project.developer_id !== developerUser.id) {
+      throw ApiError.forbidden('You are not assigned to this project.');
+    }
+
+    const updated = await projectsRepo.declineProject(id, reason);
+
+    await recordAuditLog({
+      userId: developerUser.id,
+      action: 'ENGINEER_DECLINED_TASK',
+      entityType: 'PROJECT',
+      entityId: id,
+      req,
+      details: { projectCode: project.project_code, reason: reason || 'Declined by engineer' }
     });
 
     return updated;

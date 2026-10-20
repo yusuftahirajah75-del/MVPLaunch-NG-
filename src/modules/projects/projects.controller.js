@@ -78,6 +78,16 @@ class ProjectsController {
     }
   }
 
+  async declineProject(req, res, next) {
+    try {
+      const reason = req.body?.reason || '';
+      const updated = await projectsService.declineProject(req.params.id, req.user, reason, req);
+      return ApiResponse.success(res, 'Project assignment declined and returned to review pool', { project: updated });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async updateProgress(req, res, next) {
     try {
       const updated = await projectsService.updateProgress(req.params.id, req.body, req.user, req);

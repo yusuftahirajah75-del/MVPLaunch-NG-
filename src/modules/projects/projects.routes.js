@@ -17,7 +17,8 @@ const {
   updateProgressSchema,
   submitDeliverableSchema,
   reviewDeliverableSchema,
-  addNoteSchema
+  addNoteSchema,
+  declineProjectSchema
 } = require('./projects.validation');
 const { paymentLimiter } = require('../../middleware/rateLimiter.middleware');
 const { ROLES } = require('../../config/constants');
@@ -65,19 +66,42 @@ router.post(
   validate({ body: assignEngineerSchema }),
   projectsController.assignEngineer
 );
-// Legacy alias
+// Legacy alias & PATCH support
 router.post(
   '/:id/assign',
   authorize(ROLES.ADMIN),
   validate({ body: assignEngineerSchema }),
   projectsController.assignEngineer
 );
+router.patch(
+  '/:id/assign',
+  authorize(ROLES.ADMIN),
+  validate({ body: assignEngineerSchema }),
+  projectsController.assignEngineer
+);
 
-// 9. Engineer Accept Task
+// 9. Engineer Accept / Decline Task
 router.post(
   '/:id/accept',
   authorize(ROLES.DEVELOPER),
   projectsController.acceptProject
+);
+router.patch(
+  '/:id/accept',
+  authorize(ROLES.DEVELOPER),
+  projectsController.acceptProject
+);
+router.post(
+  '/:id/decline',
+  authorize(ROLES.DEVELOPER),
+  validate({ body: declineProjectSchema }),
+  projectsController.declineProject
+);
+router.patch(
+  '/:id/decline',
+  authorize(ROLES.DEVELOPER),
+  validate({ body: declineProjectSchema }),
+  projectsController.declineProject
 );
 
 // 10. Engineer / Admin Update Progress
